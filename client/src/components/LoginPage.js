@@ -23,8 +23,14 @@ function LoginPage() {
         try {
             const res = await axios.post('http://localhost:5000/api/auth/login', { username });
             setChallenge(res.data);
+            // Display the problem link as a clickable href.
             setMessage(
-                `Challenge started! Please submit a compilation error for the following problem within 60 seconds: ${res.data.problemLink}`
+              <>
+                Challenge started! Please submit a compilation error for the following problem within 60 seconds:{' '}
+                <a href={res.data.problemLink} target="_blank" rel="noopener noreferrer">
+                  {res.data.problemLink}
+                </a>
+              </>
             );
         } catch (err) {
             console.log(err);
@@ -40,8 +46,9 @@ function LoginPage() {
         try {
             const res = await axios.get(`http://localhost:5000/api/auth/challenge-check?challengeId=${challenge.challengeId}`);
             if (res.data.success) {
-                // Save username (and token if needed) to localStorage.
+                // Save username and token to localStorage.
                 localStorage.setItem('myHandle', username);
+                localStorage.setItem('token', res.data.token);
                 setMessage('Login successful!');
                 // Redirect to home or another page.
                 navigate('/');

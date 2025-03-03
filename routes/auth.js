@@ -2,25 +2,39 @@
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
+const jwt = require('jsonwebtoken');
 const Challenge = require('../models/Challenge');
 const User = require('../models/User');
 
-// For simplicity, we use a static list of problem links for the challenge.
-const challengeProblems = [
-  'https://codeforces.com/contest/1/problem/A',
-  'https://codeforces.com/contest/2/problem/A',
-  'https://codeforces.com/contest/3/problem/A',
-  // Add additional problem links as needed.
-];
+const JWT_SECRET = 'your_jwt_secret_key'; // In production, store this in an environment variable
 
 // POST /api/auth/login
 // Initiates a login challenge for the given Codeforces username.
 router.post('/login', async (req, res) => {
   const { username } = req.body;
   if (!username) return res.status(400).json({ error: 'Username required' });
+  
+  // Fetch the full problem set from CodeForces to choose a random problem.
+  let problemLink;
+  try {
+    const problemsResponse = await axios.get('https://codeforces.com/api/problemset.problems');
+    if (problemsResponse.data.status !== 'OK') {
+      return res.status(500).json({ error: 'Error fetching problems' });
+    }
+    const problems = problemsResponse.data.result.problems;
+    // Filter to get only problems with contestId and index.
+    const validProblems = problems.filter(p => p.contestId && p.index);
+    if(validProblems.length === 0) {
+      return res.status(500).json({ error: 'No valid problems found' });
+    }
+    const randomProblem = validProblems[Math.floor(Math.random() * validProblems.length)];
+    // Construct the problem link (using contest-style link).
+    problemLink = `https://codeforces.com/contest/${randomProblem.contestId}/problem/${randomProblem.index}`;
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ error: 'Error fetching problems' });
+  }
 
-  // Randomly choose a challenge problem link.
-  const problemLink = challengeProblems[Math.floor(Math.random() * challengeProblems.length)];
   const now = new Date();
   const expiresAt = new Date(now.getTime() + 60 * 1000); // 60 seconds from now
 
@@ -62,7 +76,7 @@ router.get('/challenge-check', async (req, res) => {
     const contestId = linkParts[4];
     const problemIndex = linkParts[6];
 
-    // Call the Codeforces API to fetch submissions for the contest.
+    // Call the CodeForces API to fetch submissions for the contest.
     const apiUrl = `https://codeforces.com/api/user.status?handle=${challenge.username}&contestId=${contestId}`;
     const response = await axios.get(apiUrl);
     const submissions = response.data.result;
@@ -86,7 +100,10 @@ router.get('/challenge-check', async (req, res) => {
         await user.save();
       }
 
-      return res.json({ success: true, message: 'Challenge passed. Login successful.' });
+      // Generate JWT token
+      const token = jwt.sign({ username: challenge.username, _id: user._id }, JWT_SECRET, { expiresIn: '1h' });
+
+      return res.json({ success: true, message: 'Challenge passed. Login successful.', token });
     } else {
       return res.status(400).json({ error: 'Challenge not passed yet.' });
     }

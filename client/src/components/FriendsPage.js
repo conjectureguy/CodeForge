@@ -10,6 +10,14 @@ function FriendsPage() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
+  // On mount, check for authentication (JWT token)
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+    }
+  }, [navigate]);
+
   // Load friends from localStorage
   useEffect(() => {
     const storedFriends = JSON.parse(localStorage.getItem('friends')) || [];

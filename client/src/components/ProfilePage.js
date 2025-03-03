@@ -6,8 +6,6 @@ import {
   Spinner,
   Alert,
   Form,
-  Row,
-  Col,
   Table,
   ListGroup,
 } from 'react-bootstrap';
@@ -44,6 +42,14 @@ function ProfilePage() {
   const [customContests, setCustomContests] = useState([]);
 
   const navigate = useNavigate();
+
+  // On mount, check for authentication (JWT token)
+  useEffect(() => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      navigate('/login');
+    }
+  }, [navigate]);
 
   // On mount, load saved handle and friends.
   useEffect(() => {
@@ -165,6 +171,7 @@ function ProfilePage() {
     setRecentSolves(recent);
   };
 
+  // Save the entered handle to local storage.
   const handleSave = () => {
     if (!inputHandle.trim()) {
       setError('Please enter a valid handle.');
@@ -175,10 +182,11 @@ function ProfilePage() {
     setHandle(inputHandle.trim());
   };
 
-  const handleClear = () => {
+  // Logout: remove stored handle and token, then navigate to login.
+  const handleLogout = () => {
     localStorage.removeItem('myHandle');
-    setHandle('');
-    setProfile(null);
+    localStorage.removeItem('token');
+    navigate('/login');
   };
 
   const handleFriendClick = (friendHandle) => {
@@ -211,8 +219,8 @@ function ProfilePage() {
         </div>
       ) : (
         <>
-          <Button variant="warning" onClick={handleClear} className="mb-3">
-            Change Profile
+          <Button variant="danger" onClick={handleLogout} className="mb-3">
+            Logout
           </Button>
           {error && <Alert variant="danger">{error}</Alert>}
           {loading && (
@@ -237,8 +245,6 @@ function ProfilePage() {
               </Card.Body>
             </Card>
           )}
-
-          {/* (Existing charts and analytics sections remain unchanged) */}
 
           {/* Custom Contests Section */}
           {customContests.length > 0 && (
@@ -384,7 +390,7 @@ function ProfilePage() {
             {friends.length > 0 ? (
               <ListGroup horizontal className="justify-content-center">
                 {friends.map((f) => (
-                  <ListGroup.Item key={f} action onClick={() => handleFriendClick(f)}>
+                  <ListGroup.Item key={f} action onClick={() => navigate(`/compare/${f}`)}>
                     {f}
                   </ListGroup.Item>
                 ))}
