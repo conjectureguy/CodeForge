@@ -5,6 +5,7 @@ const cors = require('cors');
 
 // Import route modules
 const authRoutes = require('./routes/auth');
+const contestRoutes = require('./routes/contest');
 const profileRoutes = require('./routes/profile');
 
 const app = express();
@@ -14,7 +15,7 @@ app.use(express.json());
 app.use(cors());
 
 // Connect to MongoDB (adjust the URI as needed)
-mongoose.connect('mongodb://localhost:27017/forcecodes', {
+mongoose.connect('mongodb://localhost:27017/codeforge', {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
@@ -24,6 +25,7 @@ mongoose.connect('mongodb://localhost:27017/forcecodes', {
 // Use the authentication and profile routes
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
+app.use('/api/contests', contestRoutes);
 
 // Additional routes (if any) can be added here.
 // const contestRoutes = require('./routes/contest');
