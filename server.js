@@ -2,6 +2,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const dotenv = require('dotenv');
 
 // Import route modules
 const authRoutes = require('./routes/auth');
@@ -10,12 +11,14 @@ const profileRoutes = require('./routes/profile');
 
 const app = express();
 
+mongo_uri = dotenv.config().parsed.MONGO_URI;
+
 // Middleware
 app.use(express.json());
 app.use(cors());
 
 // Connect to MongoDB (adjust the URI as needed)
-mongoose.connect('mongodb://localhost:27017/codeforge', {
+mongoose.connect(mongo_uri, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
 })
