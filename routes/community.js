@@ -1,8 +1,9 @@
+// routes/community.js
 const express = require('express');
 const router = express.Router();
 const Post = require('../models/Post');
 
-// GET: Fetch all posts (sorted by newest)
+// GET all posts (sorted by newest)
 router.get('/posts', async (req, res) => {
   try {
     const posts = await Post.find().sort({ createdAt: -1 });
@@ -12,13 +13,25 @@ router.get('/posts', async (req, res) => {
   }
 });
 
-// POST: Create a new post
+// GET a single post by ID with logging for debugging
+router.get('/posts/:postId', async (req, res) => {
+  console.log("Fetching post with id:", req.params.postId);
+  try {
+    const post = await Post.findById(req.params.postId);
+    if (!post) return res.status(404).json({ error: 'Post not found' });
+    res.json(post);
+  } catch (error) {
+    console.error("Error fetching post:", error);
+    res.status(500).json({ error: 'Error fetching post' });
+  }
+});
+
+// POST: Create a new post (uses author from request)
 router.post('/posts', async (req, res) => {
   const { title, content, author } = req.body;
   try {
     const newPost = new Post({ title, content, author });
     await newPost.save();
-    // Emit a real-time event if Socket.io is available
     const io = req.app.get('io');
     if (io) io.emit('postCreated', newPost);
     res.status(201).json(newPost);
@@ -27,19 +40,31 @@ router.post('/posts', async (req, res) => {
   }
 });
 
-// POST: Vote on a post (expects { type: 'up' } or { type: 'down' })
+// POST: Vote on a post (only one vote per user; update if necessary)
 router.post('/posts/:postId/vote', async (req, res) => {
   const { postId } = req.params;
-  const { type } = req.body;
+  const { type, user } = req.body; // type: 'up' or 'down'
+  if (!user) return res.status(400).json({ error: 'User ID required for voting' });
   try {
     const post = await Post.findById(postId);
     if (!post) return res.status(404).json({ error: 'Post not found' });
-    if (type === 'up') {
-      post.votes += 1;
-    } else if (type === 'down') {
-      post.votes -= 1;
+    
+    let voteRecord = post.voted_by.find(v => v.user === user);
+    if (voteRecord) {
+      // If same vote, do nothing
+      if ((voteRecord.vote === 1 && type === 'up') || (voteRecord.vote === -1 && type === 'down')) {
+         return res.json(post);
+      } else {
+         // Change vote: remove previous vote value and add new vote
+         post.votes = post.votes - voteRecord.vote;
+         voteRecord.vote = type === 'up' ? 1 : -1;
+         post.votes = post.votes + voteRecord.vote;
+      }
     } else {
-      return res.status(400).json({ error: 'Invalid vote type' });
+      // New vote
+      const voteVal = type === 'up' ? 1 : -1;
+      post.voted_by.push({ user, vote: voteVal });
+      post.votes += voteVal;
     }
     await post.save();
     const io = req.app.get('io');
@@ -50,7 +75,89 @@ router.post('/posts/:postId/vote', async (req, res) => {
   }
 });
 
-// Helper: Recursively add a reply to a reply array
+// POST: Add a reply (or nested reply)
+router.post('/posts/:postId/reply', async (req, res) => {
+  const { postId } = req.params;
+  const { author, content, parentReplyId } = req.body;
+  try {
+    const post = await Post.findById(postId);
+    if (!post) return res.status(404).json({ error: 'Post not found' });
+    
+    const newReply = {
+      author,
+      content,
+      votes: 0,
+      voted_by: [],
+      createdAt: new Date(),
+      replies: []
+    };
+    
+    if (parentReplyId) {
+      const found = await addReply(post.replies, parentReplyId, newReply);
+      if (!found) return res.status(404).json({ error: 'Parent reply not found' });
+    } else {
+      post.replies.push(newReply);
+    }
+    
+    await post.save();
+    const io = req.app.get('io');
+    if (io) io.emit('postUpdated', post);
+    res.json(post);
+  } catch (error) {
+    res.status(500).json({ error: 'Error adding reply' });
+  }
+});
+
+// POST: Vote on a reply (nested within a post)
+router.post('/posts/:postId/reply/:replyId/vote', async (req, res) => {
+  const { postId, replyId } = req.params;
+  const { type, user } = req.body;
+  if (!user) return res.status(400).json({ error: 'User ID required for voting' });
+  try {
+    const post = await Post.findById(postId);
+    if (!post) return res.status(404).json({ error: 'Post not found' });
+    
+    const updateReplyVote = (replies) => {
+      for (let reply of replies) {
+        if (reply._id.toString() === replyId) {
+          let voteRecord = reply.voted_by.find(v => v.user === user);
+          if (voteRecord) {
+            if ((voteRecord.vote === 1 && type === 'up') || (voteRecord.vote === -1 && type === 'down')) {
+              return reply;
+            } else {
+              reply.votes = reply.votes - voteRecord.vote;
+              voteRecord.vote = type === 'up' ? 1 : -1;
+              reply.votes = reply.votes + voteRecord.vote;
+              return reply;
+            }
+          } else {
+            const voteVal = type === 'up' ? 1 : -1;
+            reply.voted_by.push({ user, vote: voteVal });
+            reply.votes += voteVal;
+            return reply;
+          }
+        }
+        if (reply.replies && reply.replies.length) {
+          const found = updateReplyVote(reply.replies);
+          if (found) return found;
+        }
+      }
+      return null;
+    };
+
+    const updatedReply = updateReplyVote(post.replies);
+    if (!updatedReply) return res.status(404).json({ error: 'Reply not found' });
+    
+    await post.save();
+    const io = req.app.get('io');
+    if (io) io.emit('postUpdated', post);
+    res.json(post);
+  } catch (error) {
+    res.status(500).json({ error: 'Error updating reply vote' });
+  }
+});
+
+// Helper function to recursively add a reply
 async function addReply(replies, parentId, newReply) {
   for (let reply of replies) {
     if (reply._id.toString() === parentId) {
@@ -63,41 +170,5 @@ async function addReply(replies, parentId, newReply) {
   }
   return false;
 }
-
-// POST: Add a reply to a post (or nested reply if parentReplyId is provided)
-router.post('/posts/:postId/reply', async (req, res) => {
-  const { postId } = req.params;
-  const { author, content, parentReplyId } = req.body;
-  try {
-    const post = await Post.findById(postId);
-    if (!post) return res.status(404).json({ error: 'Post not found' });
-    
-    const newReply = {
-      author,
-      content,
-      votes: 0,
-      createdAt: new Date(),
-      replies: []
-    };
-    
-    if (parentReplyId) {
-      // Add as nested reply
-      const found = await addReply(post.replies, parentReplyId, newReply);
-      if (!found) {
-        return res.status(404).json({ error: 'Parent reply not found' });
-      }
-    } else {
-      // Add as top-level reply
-      post.replies.push(newReply);
-    }
-    
-    await post.save();
-    const io = req.app.get('io');
-    if (io) io.emit('postUpdated', post);
-    res.json(post);
-  } catch (error) {
-    res.status(500).json({ error: 'Error adding reply' });
-  }
-});
 
 module.exports = router;

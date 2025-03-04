@@ -11,6 +11,7 @@ import ProblemsPage from './components/ProblemsPage';
 import LoginPage from './components/LoginPage';
 import ContestPage from './components/ContestPage'; // New custom contest page
 import ContestDetailPage from './components/ContestDetailPage';
+import BlogDetailPage from './components/BlogDetailPage';
 // import { getCodeForcesProblems } from './api/codeforcesAPI';
 
 function App() {
@@ -18,7 +19,7 @@ function App() {
     <BrowserRouter>
       <Navbar bg="dark" variant="dark" expand="lg">
         <Container>
-          <Navbar.Brand as={Link} to="/">ForceCodes</Navbar.Brand>
+          <Navbar.Brand as={Link} to="/">CodeForge</Navbar.Brand>
           <Navbar.Toggle aria-controls="forcecodes-navbar" />
           <Navbar.Collapse id="forcecodes-navbar">
             <Nav className="ms-auto">
@@ -45,6 +46,7 @@ function App() {
           <Route path="/friends" element={<FriendsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/compare/:friendHandle" element={<ComparisonPage />} />
+          <Route path="/blog/:postId" element={<BlogDetailPage />} />
         </Routes>
       </Container>
     </BrowserRouter>

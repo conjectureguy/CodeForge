@@ -8,7 +8,7 @@ function NavigationBar() {
         <Navbar bg="dark" variant="dark" expand="lg">
             <Container>
                 <LinkContainer to="/">
-                    <Navbar.Brand>Codeforces Visualizer</Navbar.Brand>
+                    <Navbar.Brand>CodeForge</Navbar.Brand>
                 </LinkContainer>
                 <Navbar.Toggle aria-controls="cf-navbar" />
                 <Navbar.Collapse id="cf-navbar">

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { Form, Button, Alert, Card, Row, Col } from 'react-bootstrap';
+// src/components/HomePage.js
+import React, { useState, useEffect } from 'react';
+import { Form, Button, Alert, Card, Row, Col, Container } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import Community from './Community';
 
@@ -8,6 +9,9 @@ function HomePage() {
   const [profile, setProfile] = useState(null);
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  // Retrieve logged-in user's CodeForces handle from localStorage
+  const currentUser = localStorage.getItem('myHandle');
 
   const handleSearch = async () => {
     if (!searchHandle.trim()) {
@@ -41,46 +45,47 @@ function HomePage() {
   };
 
   return (
-    <Row>
-      <Col md={8}>
-        {/* Community Blog Section */}
-        <Community />
-      </Col>
-      <Col md={4}>
-        {/* Codeforces Profile Search Section */}
-        <h2>Search for a Profile</h2>
-        {error && <Alert variant="danger">{error}</Alert>}
-        <Form.Group className="mb-3">
-          <Form.Control
-            type="text"
-            placeholder="Enter Codeforces handle"
-            value={searchHandle}
-            onChange={(e) => setSearchHandle(e.target.value)}
-          />
-        </Form.Group>
-        <Button variant="primary" onClick={handleSearch}>Search</Button>
+    <Container fluid>
+      <Row>
+        <Col md={8}>
+          {/* Render Community blogs; currentUser comes from localStorage */}
+          <Community currentUser={currentUser} />
+        </Col>
+        <Col md={4}>
+          <h2 className="my-3">Search for a Profile</h2>
+          {error && <Alert variant="danger">{error}</Alert>}
+          <Form.Group className="mb-3">
+            <Form.Control
+              type="text"
+              placeholder="Enter Codeforces handle"
+              value={searchHandle}
+              onChange={(e) => setSearchHandle(e.target.value)}
+            />
+          </Form.Group>
+          <Button variant="primary" onClick={handleSearch}>Search</Button>
 
-        {profile && (
-          <Card className="mt-4">
-            <Card.Body>
-              <Card.Title>{profile.handle}</Card.Title>
-              <Card.Img
-                variant="top"
-                src={profile.titlePhoto}
-                alt={profile.handle}
-                style={{ width: '150px', borderRadius: '50%' }}
-              />
-              <Card.Text>
-                <strong>Rank:</strong> {profile.rank} <br />
-                <strong>Rating:</strong> {profile.rating} <br />
-                <strong>Max Rank:</strong> {profile.maxRank} ({profile.maxRating})
-              </Card.Text>
-              <Button variant="success" onClick={handleAddFriend}>Add as Friend</Button>
-            </Card.Body>
-          </Card>
-        )}
-      </Col>
-    </Row>
+          {profile && (
+            <Card className="mt-4">
+              <Card.Body>
+                <Card.Title>{profile.handle}</Card.Title>
+                <Card.Img
+                  variant="top"
+                  src={profile.titlePhoto}
+                  alt={profile.handle}
+                  style={{ width: '150px', borderRadius: '50%' }}
+                />
+                <Card.Text>
+                  <strong>Rank:</strong> {profile.rank} <br />
+                  <strong>Rating:</strong> {profile.rating} <br />
+                  <strong>Max Rank:</strong> {profile.maxRank} ({profile.maxRating})
+                </Card.Text>
+                <Button variant="success" onClick={handleAddFriend}>Add as Friend</Button>
+              </Card.Body>
+            </Card>
+          )}
+        </Col>
+      </Row>
+    </Container>
   );
 }
 
