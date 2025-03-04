@@ -1,5 +1,5 @@
 // src/App.js
-import React from 'react';
+import React, { useState, useEffect } from 'react'; // Added useState, useEffect
 import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
 import { Navbar, Nav, Container } from 'react-bootstrap';
 import HomePage from './components/HomePage';
@@ -12,14 +12,27 @@ import LoginPage from './components/LoginPage';
 import ContestPage from './components/ContestPage'; // New custom contest page
 import ContestDetailPage from './components/ContestDetailPage';
 import TeamsPage from './components/TeamsPage';
+import BlogDetailPage from './components/BlogDetailPage';
 // import { getCodeForcesProblems } from './api/codeforcesAPI';
 
 function App() {
+  // Added state to track login status based on the presence of a token
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
+
+  // Update login state if localStorage changes (e.g., in another tab)
+  useEffect(() => {
+    const checkAuth = () => {
+      setIsLoggedIn(!!localStorage.getItem('token'));
+    };
+    window.addEventListener('storage', checkAuth);
+    return () => window.removeEventListener('storage', checkAuth);
+  }, []);
+
   return (
     <BrowserRouter>
       <Navbar bg="dark" variant="dark" expand="lg">
         <Container>
-          <Navbar.Brand as={Link} to="/">ForceCodes</Navbar.Brand>
+          <Navbar.Brand as={Link} to="/">CodeForge</Navbar.Brand>
           <Navbar.Toggle aria-controls="forcecodes-navbar" />
           <Navbar.Collapse id="forcecodes-navbar">
             <Nav className="ms-auto">
@@ -30,7 +43,27 @@ function App() {
               <Nav.Link as={Link} to="/friends">My Friends</Nav.Link>
               <Nav.Link as={Link} to="/teams">Teams</Nav.Link>
               <Nav.Link as={Link} to="/profile">Profile</Nav.Link>
-              <Nav.Link as={Link} to="/login">Login</Nav.Link>
+              {/* Original Login link is now hidden if the user is logged in */}
+              <Nav.Link 
+                as={Link} 
+                to="/login" 
+                style={{ display: isLoggedIn ? 'none' : 'block' }}
+              >
+                Login
+              </Nav.Link>
+              {/* Conditionally render Logout link when logged in */}
+              {isLoggedIn && (
+                <Nav.Link
+                  onClick={() => {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('myHandle');
+                    setIsLoggedIn(false);
+                    window.location.href = '/login';
+                  }}
+                >
+                  Logout
+                </Nav.Link>
+              )}
             </Nav>
           </Navbar.Collapse>
         </Container>
@@ -48,6 +81,7 @@ function App() {
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/compare/:friendHandle" element={<ComparisonPage />} />
           <Route path="/teams" element={<TeamsPage />} />
+          <Route path="/blog/:postId" element={<BlogDetailPage />} />
         </Routes>
       </Container>
     </BrowserRouter>
