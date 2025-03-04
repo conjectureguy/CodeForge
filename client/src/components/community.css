@@ -1,0 +1,257 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+
+:root {
+  /* Base Colors */
+  --bg-color: #f5f5f5;
+  --card-bg: #ffffff;
+  --text-color: #333333;
+  --subtext-color: #3a3a3a;
+  --border-color: #e0e0e0;
+
+  /* Accent Colors */
+  --primary-color: #ff4500; /* For primary actions if needed */
+  --gold-color: #ffd700;    /* Gold accent reminiscent of Reddit Gold */
+  --accent-dark: #e6be00;   /* Slightly darker gold for hover states */
+
+  /* Shadows & Transitions */
+  --shadow-light: rgba(0, 0, 0, 0.1);
+  --shadow-medium: rgba(0, 0, 0, 0.2);
+  --transition-speed: 0.3s;
+}
+
+/* Global Styles */
+body {
+  background-color: var(--bg-color);
+  font-family: 'Roboto', sans-serif;
+  color: var(--text-color);
+  margin: 0;
+  padding: 0;
+}
+
+/* Container */
+.community-container {
+  max-width: 1000px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+/* Header */
+.community-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+.community-header h3 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  position: relative;
+  display: inline-block;
+}
+.community-header h3::after {
+  content: '';
+  display: block;
+  height: 4px;
+  width: 50%;
+  background: var(--gold-color);
+  margin: 0.5rem auto;
+  border-radius: 2px;
+}
+.community-header p {
+  font-size: 1.2rem;
+  color: var(--subtext-color);
+}
+
+/* Post Form */
+.post-form {
+  background-color: var(--card-bg);
+  padding: 2rem;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px var(--shadow-light);
+  margin-bottom: 2rem;
+  transition: transform var(--transition-speed);
+}
+.post-form:hover {
+  transform: translateY(-3px);
+}
+.post-form .form-label {
+  font-weight: 500;
+}
+.post-form .form-control {
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0.75rem;
+}
+.post-form .btn {
+  background-color: var(--gold-color);
+  color: var(--text-color);
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 1.2rem;
+  transition: background-color var(--transition-speed);
+}
+.post-form .btn:hover {
+  background-color: var(--accent-dark);
+}
+
+/* Blog Card */
+.blog-card {
+  background-color: var(--card-bg);
+  border: none;
+  border-radius: 12px;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 8px var(--shadow-light);
+  transition: transform var(--transition-speed), box-shadow var(--transition-speed);
+}
+.blog-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 6px 12px var(--shadow-medium);
+}
+.blog-card .card-body {
+  padding: 1.5rem;
+}
+.blog-card .card-title {
+  font-size: 1.75rem;
+  font-weight: 600;
+}
+.blog-card .card-subtitle {
+  font-size: 0.9rem;
+  color: var(--subtext-color);
+  margin-bottom: 1rem;
+}
+.blog-card .card-text {
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+/* Vote Group */
+.vote-group {
+  display: flex;
+  align-items: center;
+}
+.vote-group button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  font-size: 1.2rem;
+  color: var(--subtext-color);
+  transition: color var(--transition-speed), transform var(--transition-speed);
+}
+.vote-group button:hover:not(:disabled) {
+  color: var(--text-color);
+  transform: scale(1.1);
+}
+.vote-group button:disabled {
+  cursor: default;
+}
+.vote-group span {
+  font-size: 1.2rem;
+  margin: 0 0.5rem;
+  font-weight: 500;
+}
+
+/* Comments Button */
+.comments-btn {
+  background-color: var(--gold-color);
+  color: var(--text-color);
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  transition: background-color var(--transition-speed), transform var(--transition-speed);
+}
+.comments-btn:hover {
+  background-color: var(--accent-dark);
+  transform: scale(1.05);
+}
+
+/* Blog Detail Card */
+.blog-detail-card {
+  background-color: var(--card-bg);
+  border: none;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 6px 12px var(--shadow-medium);
+  margin-bottom: 2rem;
+}
+.blog-detail-card .card-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+.blog-detail-card .card-subtitle {
+  font-size: 0.95rem;
+  color: var(--subtext-color);
+  margin-bottom: 1.5rem;
+}
+.blog-detail-card .card-text {
+  font-size: 1.1rem;
+  line-height: 1.6;
+}
+
+/* Reply Card */
+.reply-card {
+  background-color: var(--card-bg);
+  border: none;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  box-shadow: 0 3px 8px var(--shadow-light);
+  transition: transform var(--transition-speed);
+}
+.reply-card:hover {
+  transform: translateX(3px);
+}
+.reply-card .card-subtitle {
+  font-size: 0.85rem;
+  color: var(--subtext-color);
+  margin-bottom: 0.5rem;
+}
+.reply-card .card-text {
+  font-size: 1rem;
+}
+
+/* Nested Replies */
+.nested-reply {
+  margin-left: 2rem;
+  margin-top: 1rem;
+}
+
+/* Upvote/Downvote Buttons */
+.upvote, .downvote {
+  width: 32px;
+  height: 32px;
+  background-repeat: no-repeat;
+  background-position: center;
+  background-size: 18px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  transition: background-image 0.3s ease, transform 0.3s ease;
+}
+.upvote:hover, .downvote:hover {
+  transform: scale(1.1);
+}
+
+/* Default Upvote */
+.upvote {
+    background-color: transparent;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%237a7a7a' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='M5 15l7-7 7 7'/%3E%3C/svg%3E");
+}
+
+/* Default Downvote */
+.downvote {
+    background-color: transparent;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%237a7a7a' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+}
+
+/* Active Upvote */
+.upvote.active {
+    background-color: transparent;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23505050' viewBox='0 0 24 24'%3E%3Cpath d='M5 15l7-7 7 7'/%3E%3C/svg%3E");
+}
+
+/* Active Downvote */
+.downvote.active {
+    background-color: transparent;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23505050' viewBox='0 0 24 24'%3E%3Cpath d='M5 15l7-7 7 7'/%3E%3C/svg%3E");
+}
