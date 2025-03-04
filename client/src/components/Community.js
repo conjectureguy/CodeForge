@@ -3,6 +3,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, Button, Form, Alert, Container } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
+import './community.css'; // Adjust the path as needed
 
 const socket = io('http://localhost:5000');
 
@@ -24,9 +25,7 @@ const Community = ({ currentUser }) => {
 
   useEffect(() => {
     fetchPosts();
-    socket.on('postCreated', (post) => {
-      setPosts(prev => [post, ...prev]);
-    });
+    socket.on('postCreated', (post) => setPosts(prev => [post, ...prev]));
     socket.on('postUpdated', (updatedPost) => {
       setPosts(prev => prev.map(post => post._id === updatedPost._id ? updatedPost : post));
     });
@@ -70,29 +69,20 @@ const Community = ({ currentUser }) => {
   };
 
   return (
-    <Container>
-      <h3 className="my-3">Community Blogs</h3>
+    <Container className="community-container">
+      <div className="community-header">
+        <h3>Community Blogs</h3>
+        <p>Share your thoughts with fellow CodeForces users!</p>
+      </div>
       {error && <Alert variant="danger">{error}</Alert>}
-      <Form onSubmit={submitPost} className="mb-4">
+      <Form onSubmit={submitPost} className="post-form">
         <Form.Group controlId="postTitle">
           <Form.Label>Title</Form.Label>
-          <Form.Control 
-            type="text" 
-            name="title" 
-            placeholder="Enter title" 
-            value={newPost.title} 
-            onChange={handlePostChange} 
-          />
+          <Form.Control type="text" name="title" placeholder="Enter title" value={newPost.title} onChange={handlePostChange} />
         </Form.Group>
         <Form.Group controlId="postContent" className="mt-2">
           <Form.Label>Content</Form.Label>
-          <Form.Control 
-            as="textarea" 
-            name="content" 
-            placeholder="Enter your blog content" 
-            value={newPost.content} 
-            onChange={handlePostChange} 
-          />
+          <Form.Control as="textarea" name="content" placeholder="Enter your blog content" value={newPost.content} onChange={handlePostChange} />
         </Form.Group>
         <Button variant="primary" type="submit" className="mt-3" disabled={!currentUser}>
           Post
@@ -100,11 +90,9 @@ const Community = ({ currentUser }) => {
       </Form>
 
       {posts.map(post => {
-        const userVote = currentUser && post.voted_by 
-          ? post.voted_by.find(v => v.user === currentUser)
-          : null;
+        const userVote = currentUser && post.voted_by ? post.voted_by.find(v => v.user === currentUser) : null;
         return (
-          <Card key={post._id} className="mb-3">
+          <Card key={post._id} className="blog-card">
             <Card.Body>
               <Card.Title>{post.title}</Card.Title>
               <Card.Subtitle className="mb-2 text-muted">
@@ -113,12 +101,11 @@ const Community = ({ currentUser }) => {
               <Card.Text>
                 {post.content.length > 200 ? post.content.slice(0, 200) + '...' : post.content}
               </Card.Text>
-              <div className="d-flex justify-content-between align-items-center">
+              <div className="d-flex justify-content-between align-items-center vote-group">
                 <div>
-                  <Button 
-                    variant="success" 
-                    size="sm" 
-                    disabled={userVote && userVote.vote === 1}
+                  <Button
+                    className={`upvote ${userVote && userVote.vote === 1 ? "active" : ""}`}
+                    size="sm"
                     onClick={() => {
                       if (!currentUser) return alert("Please log in to vote");
                       fetch(`http://localhost:5000/api/community/posts/${post._id}/vote`, {
@@ -127,14 +114,11 @@ const Community = ({ currentUser }) => {
                         body: JSON.stringify({ type: 'up', user: currentUser })
                       }).then(fetchPosts);
                     }}
-                  >
-                    Upvote
-                  </Button>
-                  <span className="mx-2">{post.votes}</span>
-                  <Button 
-                    variant="danger" 
-                    size="sm" 
-                    disabled={userVote && userVote.vote === -1}
+                  />
+                  <span>{post.votes}</span>
+                  <Button
+                    className={`downvote ${userVote && userVote.vote === -1 ? "active" : ""}`}
+                    size="sm"
                     onClick={() => {
                       if (!currentUser) return alert("Please log in to vote");
                       fetch(`http://localhost:5000/api/community/posts/${post._id}/vote`, {
@@ -143,11 +127,9 @@ const Community = ({ currentUser }) => {
                         body: JSON.stringify({ type: 'down', user: currentUser })
                       }).then(fetchPosts);
                     }}
-                  >
-                    Downvote
-                  </Button>
+                  />
                 </div>
-                <Button variant="outline-primary" onClick={() => navigate(`/blog/${post._id}`)}>
+                <Button className="comments-btn" variant="outline-primary" onClick={() => navigate(`/blog/${post._id}`)}>
                   Comments
                 </Button>
               </div>
