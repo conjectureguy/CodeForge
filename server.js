@@ -4,6 +4,7 @@ const cors = require('cors');
 const dotenv = require('dotenv');
 const http = require('http');
 const socketio = require('socket.io');
+const teamRoutes = require('./routes/team');
 
 // Load env variables
 dotenv.config();
@@ -12,7 +13,6 @@ const mongo_uri = process.env.MONGO_URI;
 const authRoutes = require('./routes/auth');
 const contestRoutes = require('./routes/contest');
 const profileRoutes = require('./routes/profile');
-const teamRoutes = require('./routes/team');
 const communityRoutes = require('./routes/community');
 
 const app = express();
@@ -32,10 +32,21 @@ mongoose.connect(mongo_uri, {
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/contests', contestRoutes);
+app.use('/api/community', communityRoutes);
+app.use('/api/teams', teamRoutes);
 
-// Additional routes (if any) can be added here.
-// const contestRoutes = require('./routes/contest');
-// app.use('/contests', contestRoutes);
+
+// Create HTTP server and attach Socket.io
+const server = http.createServer(app);
+const io = socketio(server, {
+  cors: { origin: '*' }
+});
+
+io.on('connection', (socket) => {
+  console.log('New client connected:', socket.id);
+  socket.on('disconnect', () => console.log('Client disconnected:', socket.id));
+});
+app.set('io', io);
 
 const PORT = process.env.PORT || 5000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
