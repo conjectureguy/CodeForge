@@ -11,6 +11,7 @@ import ProblemsPage from './components/ProblemsPage';
 import LoginPage from './components/LoginPage';
 import ContestPage from './components/ContestPage'; // New custom contest page
 import ContestDetailPage from './components/ContestDetailPage';
+import TeamsPage from './components/TeamsPage';
 // import { getCodeForcesProblems } from './api/codeforcesAPI';
 
 function App() {
@@ -27,6 +28,7 @@ function App() {
               <Nav.Link as={Link} to="/custom-contest">Custom Contest</Nav.Link>
               <Nav.Link as={Link} to="/problems">Problems</Nav.Link>
               <Nav.Link as={Link} to="/friends">My Friends</Nav.Link>
+              <Nav.Link as={Link} to="/teams">Teams</Nav.Link>
               <Nav.Link as={Link} to="/profile">Profile</Nav.Link>
               <Nav.Link as={Link} to="/login">Login</Nav.Link>
             </Nav>
@@ -45,6 +47,7 @@ function App() {
           <Route path="/friends" element={<FriendsPage />} />
           <Route path="/profile" element={<ProfilePage />} />
           <Route path="/compare/:friendHandle" element={<ComparisonPage />} />
+          <Route path="/teams" element={<TeamsPage />} />
         </Routes>
       </Container>
     </BrowserRouter>

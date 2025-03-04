@@ -7,6 +7,7 @@ const cors = require('cors');
 const authRoutes = require('./routes/auth');
 const contestRoutes = require('./routes/contest');
 const profileRoutes = require('./routes/profile');
+const teamRoutes = require('./routes/team');
 
 const app = express();
 
@@ -26,6 +27,7 @@ mongoose.connect('mongodb://localhost:27017/codeforge', {
 app.use('/api/auth', authRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/contests', contestRoutes);
+app.use('/api/teams', teamRoutes);
 
 // Additional routes (if any) can be added here.
 // const contestRoutes = require('./routes/contest');

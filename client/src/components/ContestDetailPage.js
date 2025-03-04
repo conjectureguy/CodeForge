@@ -5,13 +5,13 @@ import axios from 'axios';
 import { useParams } from 'react-router-dom';
 
 function ContestDetailPage() {
-  const { contestSlug } = useParams(); // Expected format: "contest-<id>"
+  const { contestSlug } = useParams(); // e.g., "contest-<id>"
   const [contest, setContest] = useState(null);
   const [leaderboard, setLeaderboard] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  // Fetch contest details using our slug endpoint
+  // 1. Fetch the contest details from our backend slug endpoint
   const fetchContest = async () => {
     setLoading(true);
     try {
@@ -27,40 +27,73 @@ function ContestDetailPage() {
     setLoading(false);
   };
 
-  // Refresh leaderboard by fetching the last 50 submissions for each participant,
-  // then running nested loops over contest problems and submissions.
+  // 2. Refresh the leaderboard by checking each participant's last 50 submissions
+  //    If participant.isTeam is true, we fetch last 50 for each member and combine them.
   const refreshLeaderboard = async () => {
     if (!contest) return;
     const newLeaderboard = [];
-    console.log(contest);
+
+    console.log('Contest data:', contest);
+    
+
     for (const participant of contest.participants) {
+      // We'll gather all submissions for this participant (or team) into a single array
+      let allSubs = [];
+      let displayName = '';
+      if (participant.isTeam) {
+        // If it's a team, fetch last 50 submissions for each member
+        displayName = `${participant.teamName} [${(participant.members || []).join(', ')}]`;
+        for (const member of participant.members) {
+          try {
+            const subRes = await axios.get(`https://codeforces.com/api/user.status?handle=${member}&count=50`);
+            const submissions = subRes.data.result || [];
+            console.log(`Last 50 submissions for team member ${member}:`, submissions);
+            allSubs = allSubs.concat(submissions);
+          } catch (err) {
+            console.error(`Error fetching submissions for team member ${member}:`, err);
+          }
+        }
+      } else {
+        // Individual participant
+        displayName = participant.username;
+        try {
+          const subRes = await axios.get(
+            `https://codeforces.com/api/user.status?handle=${participant.username}&count=50`
+          );
+          const submissions = subRes.data.result || [];
+          console.log(`Last 50 submissions for user ${participant.username}:`, submissions);
+          allSubs = submissions;
+        } catch (err) {
+          console.error(`Error fetching submissions for ${participant.username}:`, err);
+        }
+      }
+
+      // Now compute solvedCount and penalty from allSubs
       let solvedCount = 0;
       let totalPenalty = 0;
+
       try {
-        // Fetch last 50 submissions for this participant
-        const subRes = await axios.get(`https://codeforces.com/api/user.status?handle=${participant.username}&count=50`);
-        const submissions = subRes.data.result;
-        console.log(`Last 50 submissions for ${participant.username}:`, submissions);
-        // For each contest problem, check if there is an accepted submission
+        // For each problem in the contest, find earliest accepted submission in allSubs
         for (const prob of contest.problems) {
-          // Filter submissions for this problem (match contestId and problem index)
-          const relevantSubs = submissions.filter(sub =>
+          // Filter relevant subs for this problem
+          const relevantSubs = allSubs.filter(sub =>
             sub.problem &&
             sub.problem.index === prob.problemIndex &&
+            sub.problem.contestId &&
             sub.problem.contestId.toString() === prob.contestId.toString() &&
             new Date(sub.creationTimeSeconds * 1000) >= new Date(contest.startTime)
           );
           if (relevantSubs.length > 0) {
-            // Find the first accepted submission for this problem (if any)
+            // Check if there's an accepted submission
             const acceptedSubs = relevantSubs.filter(sub => sub.verdict === 'OK');
             if (acceptedSubs.length > 0) {
               acceptedSubs.sort((a, b) => a.creationTimeSeconds - b.creationTimeSeconds);
               const firstAccepted = acceptedSubs[0];
-              // Calculate solved time in minutes from contest start
+              // Compute solved time
               const solvedTime = Math.floor(
                 (firstAccepted.creationTimeSeconds * 1000 - new Date(contest.startTime).getTime()) / 60000
               );
-              // Count wrong attempts before the first accepted submission
+              // Count wrong attempts before first accepted
               const wrongAttempts = relevantSubs.filter(
                 sub => sub.creationTimeSeconds < firstAccepted.creationTimeSeconds && sub.verdict !== 'OK'
               ).length;
@@ -70,18 +103,26 @@ function ContestDetailPage() {
           }
         }
       } catch (err) {
-        console.error(`Error fetching submissions for ${participant.username}:`, err);
+        console.error('Error computing scoreboard for participant:', err);
       }
-      newLeaderboard.push({ username: participant.username, solvedCount, penalty: totalPenalty });
+
+      newLeaderboard.push({
+        displayName,
+        solvedCount,
+        penalty: totalPenalty,
+      });
     }
-    // Sort leaderboard: first by solved count (desc), then by penalty (asc)
+
+    // Sort leaderboard: first by solvedCount desc, then penalty asc
     newLeaderboard.sort((a, b) => {
       if (b.solvedCount !== a.solvedCount) return b.solvedCount - a.solvedCount;
       return a.penalty - b.penalty;
     });
+
     setLeaderboard(newLeaderboard);
   };
 
+  // On mount, fetch contest details (once) then optional initial refresh
   useEffect(() => {
     fetchContest();
   }, [contestSlug]);
@@ -108,10 +149,11 @@ function ContestDetailPage() {
               <li key={idx}>
                 <a href={p.contestLink} target="_blank" rel="noopener noreferrer">
                   {p.contestLink}
-                </a>
+                </a> ({p.problemIndex})
               </li>
             ))}
           </ul>
+
           <h3>Leaderboard (ICPC Style)</h3>
           <Button variant="primary" className="mb-3" onClick={refreshLeaderboard}>
             Refresh Leaderboard
@@ -120,7 +162,7 @@ function ContestDetailPage() {
             <thead>
               <tr>
                 <th>Rank</th>
-                <th>Username</th>
+                <th>Team / User</th>
                 <th>Solved</th>
                 <th>Penalty</th>
               </tr>
@@ -128,9 +170,10 @@ function ContestDetailPage() {
             <tbody>
               {leaderboard.length > 0 ? (
                 leaderboard.map((row, idx) => (
+
                   <tr key={idx}>
                     <td>{idx + 1}</td>
-                    <td>{row.username}</td>
+                    <td>{row.displayName}</td>
                     <td>{row.solvedCount}</td>
                     <td>{row.penalty}</td>
                   </tr>

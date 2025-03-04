@@ -1,14 +1,18 @@
+// models/Contest.js
 const mongoose = require('mongoose');
 
 const ProblemSchema = new mongoose.Schema({
   contestLink: { type: String, required: true },
   contestId: { type: String },
-  problemIndex: { type: String },
+  problemIndex: { type: String }, // 'A'...'Z'
   rating: { type: Number },
 });
 
 const ParticipantSchema = new mongoose.Schema({
-  username: { type: String, required: true },
+  isTeam: { type: Boolean, default: false },
+  teamName: { type: String },        // used if isTeam = true
+  members: [{ type: String }],       // used if isTeam = true
+  username: { type: String },        // used if isTeam = false
   submissions: [
     {
       problemId: { type: mongoose.Schema.Types.ObjectId },
@@ -21,13 +25,20 @@ const ParticipantSchema = new mongoose.Schema({
 
 const ContestSchema = new mongoose.Schema({
   name: { type: String, required: true },
-  // Remove privacy field.
-  // Unique contest link slug generated upon creation.
   slug: { type: String, unique: true, index: true },
   startTime: { type: Date, required: true },
-  duration: { type: Number, required: true }, // in minutes
+  duration: { type: Number, required: true },
   admin: { type: String, required: true },
-  problems: [ProblemSchema],
+  // Enforce a maximum of 26 problems:
+  problems: {
+    type: [ProblemSchema],
+    validate: {
+      validator: function (val) {
+        return val.length <= 26;
+      },
+      message: 'Cannot exceed 26 problems (A–Z).',
+    },
+  },
   participants: [ParticipantSchema],
   createdAt: { type: Date, default: Date.now },
 });
