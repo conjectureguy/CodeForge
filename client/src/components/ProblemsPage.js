@@ -179,7 +179,7 @@ function ProblemsPage() {
 
   return (
     <div style={{ padding: '20px' }}>
-      <h2>Problems</h2>
+      <h1>Problems</h1>
       <Tabs
         id="problems-tabs"
         activeKey={activeKey}
