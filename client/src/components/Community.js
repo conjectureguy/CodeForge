@@ -25,10 +25,15 @@ const Community = ({ currentUser }) => {
 
   useEffect(() => {
     fetchPosts();
+
     socket.on('postCreated', (post) => setPosts(prev => [post, ...prev]));
+
     socket.on('postUpdated', (updatedPost) => {
-      setPosts(prev => prev.map(post => post._id === updatedPost._id ? updatedPost : post));
+      setPosts(prev => prev.map(post =>
+        post._id === updatedPost._id ? updatedPost : post
+      ));
     });
+
     return () => {
       socket.off('postCreated');
       socket.off('postUpdated');
@@ -41,20 +46,24 @@ const Community = ({ currentUser }) => {
 
   const submitPost = async (e) => {
     e.preventDefault();
+
     if (!newPost.title || !newPost.content) {
       setError('Please fill in all fields');
       return;
     }
+
     if (!currentUser) {
       setError('You must be logged in (via Codeforces) to post');
       return;
     }
+
     try {
       const res = await fetch('http://localhost:5000/api/community/posts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...newPost, author: currentUser })
       });
+
       if (res.ok) {
         setNewPost({ title: '', content: '' });
         setError('');
@@ -72,25 +81,47 @@ const Community = ({ currentUser }) => {
     <Container className="community-container">
       <div className="community-header">
         <h3>Community Blogs</h3>
-        <p>Share your thoughts with fellow CodeForge users!</p>
+        <p>Share your Announcements/Thoughts with fellow CodeForge users!</p>
       </div>
+
       {error && <Alert variant="danger">{error}</Alert>}
+
       <Form onSubmit={submitPost} className="post-form">
         <Form.Group controlId="postTitle">
           <Form.Label>Title</Form.Label>
-          <Form.Control type="text" name="title" placeholder="Enter title" value={newPost.title} onChange={handlePostChange} />
+          <Form.Control
+            type="text"
+            name="title"
+            placeholder="Enter title"
+            value={newPost.title}
+            onChange={handlePostChange}
+          />
         </Form.Group>
         <Form.Group controlId="postContent" className="mt-2">
           <Form.Label>Content</Form.Label>
-          <Form.Control as="textarea" name="content" placeholder="Enter your blog content" value={newPost.content} onChange={handlePostChange} />
+          <Form.Control
+            as="textarea"
+            name="content"
+            placeholder="Enter your blog content"
+            value={newPost.content}
+            onChange={handlePostChange}
+          />
         </Form.Group>
-        <Button variant="primary" type="submit" className="mt-3" disabled={!currentUser}>
+        <Button
+          variant="dark"
+          type="submit"
+          className="mt-3"
+          disabled={!currentUser}
+        >
           Post
         </Button>
       </Form>
 
       {posts.map(post => {
-        const userVote = currentUser && post.voted_by ? post.voted_by.find(v => v.user === currentUser) : null;
+        const userVote = currentUser && post.voted_by
+          ? post.voted_by.find(v => v.user === currentUser)
+          : null;
+
         return (
           <Card key={post._id} className="blog-card">
             <Card.Body>
@@ -99,14 +130,16 @@ const Community = ({ currentUser }) => {
                 {post.author} - {new Date(post.createdAt).toLocaleString()}
               </Card.Subtitle>
               <Card.Text>
-                {post.content.length > 200 ? post.content.slice(0, 200) + '...' : post.content}
+                {post.content.length > 200
+                  ? post.content.slice(0, 200) + '...'
+                  : post.content}
               </Card.Text>
-              <div className="d-flex justify-content-between align-items-center vote-group">
-                <div>
+              <div className="vote-container">
+                <div className="vote-buttons">
                   <Button
                     className={`upvote ${userVote && userVote.vote === 1 ? "active" : ""}`}
                     size="sm"
-                    variant='outline-success'
+                    variant='outline-dark'
                     onClick={() => {
                       if (!currentUser) return alert("Please log in to vote");
                       fetch(`http://localhost:5000/api/community/posts/${post._id}/vote`, {
@@ -117,12 +150,12 @@ const Community = ({ currentUser }) => {
                     }}
                   >
                     ▲
-                    </Button>
-                  <span>{post.votes}</span>
+                  </Button>
+                  <span className="vote-count"> {post.votes} </span>
                   <Button
                     className={`downvote ${userVote && userVote.vote === -1 ? "active" : ""}`}
                     size="sm"
-                    variant='outline-danger'
+                    variant='outline-dark'
                     onClick={() => {
                       if (!currentUser) return alert("Please log in to vote");
                       fetch(`http://localhost:5000/api/community/posts/${post._id}/vote`, {
@@ -133,13 +166,17 @@ const Community = ({ currentUser }) => {
                     }}
                   >
                     ▼
-
-                 </Button>
-
+                  </Button>
                 </div>
-                <Button className="comments-btn" variant="outline-warning" onClick={() => navigate(`/blog/${post._id}`)}>
-                  Comments
-                </Button>
+                <div className="comments-button-wrapper">
+                  <Button
+                    className="comments-btn"
+                    variant="outline-warning"
+                    onClick={() => navigate(`/blog/${post._id}`)}
+                  >
+                    Comments
+                  </Button>
+                </div>
               </div>
             </Card.Body>
           </Card>
