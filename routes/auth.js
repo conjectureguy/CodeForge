@@ -36,7 +36,7 @@ router.post('/login', async (req, res) => {
   }
 
   const now = new Date();
-  const expiresAt = new Date(now.getTime() + 60 * 1000); // 60 seconds from now
+  const expiresAt = new Date(now.getTime() + 120 * 1000); // 120 seconds from now
 
   const challenge = new Challenge({
     username,
