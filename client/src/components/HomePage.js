@@ -80,7 +80,7 @@ function HomePage() {
                   <strong>Rating:</strong> {profile.rating} <br />
                   <strong>Max Rank:</strong> {profile.maxRank} ({profile.maxRating})
                 </Card.Text>
-                <Button variant="success" onClick={handleAddFriend}>Add as Friend</Button>
+                <Button variant="dark" onClick={handleAddFriend}>Add as Friend</Button>
               </Card.Body>
             </Card>
           )}

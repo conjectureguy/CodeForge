@@ -13,43 +13,65 @@ const ReplyItem = ({ reply, loggedInUser, voteReply, submitReply }) => {
   const replyUserVote = loggedInUser && reply.voted_by ? reply.voted_by.find(v => v.user === loggedInUser) : null;
 
   return (
-    <Card className="reply-card">
+    <Card className="blog-card reply-card">
       <Card.Body>
         <Card.Subtitle className="mb-2 text-muted">
           {reply.author} - {new Date(reply.createdAt).toLocaleString()}
         </Card.Subtitle>
         <Card.Text>{reply.content}</Card.Text>
-        <div className="d-flex align-items-center">
-          <Button
-            variant="success"
-            size="sm"
-            className={replyUserVote && replyUserVote.vote === 1 ? "active" : ""}
-            disabled={replyUserVote && replyUserVote.vote === 1}
-            onClick={() => voteReply(reply._id, 'up')}
-          >
-            ↑
-          </Button>
-          <span className="mx-2">{reply.votes}</span>
-          <Button
-            variant="danger"
-            size="sm"
-            className={replyUserVote && replyUserVote.vote === -1 ? "active" : ""}
-            disabled={replyUserVote && replyUserVote.vote === -1}
-            onClick={() => voteReply(reply._id, 'down')}
-          >
-            ↓
-          </Button>
+        <div className="vote-container">
+          <div className="vote-buttons">
+            <Button
+              className={`upvote ${replyUserVote && replyUserVote.vote === 1 ? "active" : ""}`}
+              size="sm"
+              variant='outline-dark'
+              onClick={() => voteReply(reply._id, 'up')}
+            >
+              ▲
+            </Button>
+            <span className="vote-count"> {reply.votes} </span>
+            <Button
+              className={`downvote ${replyUserVote && replyUserVote.vote === -1 ? "active" : ""}`}
+              size="sm"
+              variant='outline-dark'
+              onClick={() => voteReply(reply._id, 'down')}
+            >
+              ▼
+            </Button>
+          </div>
         </div>
-        <Form.Group className="mt-2">
-          <Form.Control type="text" placeholder="Reply..." value={replyInput} onChange={(e) => setReplyInput(e.target.value)} />
-          <Button variant="primary" size="sm" className="mt-1" onClick={() => { submitReply(reply._id, replyInput); setReplyInput(''); }}>
-            Reply
-          </Button>
-        </Form.Group>
+        
+        <Form className="mt-3">
+          <Form.Group>
+            <Form.Control 
+              type="text" 
+              placeholder="Reply..." 
+              value={replyInput} 
+              onChange={(e) => setReplyInput(e.target.value)} 
+            />
+            <Button 
+              variant="dark" 
+              className="mt-2 w-100" 
+              onClick={() => { 
+                submitReply(reply._id, replyInput); 
+                setReplyInput(''); 
+              }}
+            >
+              Reply
+            </Button>
+          </Form.Group>
+        </Form>
+
         {reply.replies && reply.replies.length > 0 && (
-          <div className="nested-reply">
+          <div className="nested-reply mt-3">
             {reply.replies.map(childReply => (
-              <ReplyItem key={childReply._id} reply={childReply} loggedInUser={loggedInUser} voteReply={voteReply} submitReply={submitReply} />
+              <ReplyItem 
+                key={childReply._id} 
+                reply={childReply} 
+                loggedInUser={loggedInUser} 
+                voteReply={voteReply} 
+                submitReply={submitReply} 
+              />
             ))}
           </div>
         )}
@@ -140,58 +162,75 @@ const BlogDetailPage = ({ currentUser }) => {
   const userVote = loggedInUser && post.voted_by ? post.voted_by.find(v => v.user === loggedInUser) : null;
 
   return (
-    <Container>
-      <Card className="blog-detail-card my-3">
+    <Container className="community-container">
+      <Card className="blog-card my-3">
         <Card.Body>
           <Card.Title>{post.title}</Card.Title>
           <Card.Subtitle className="mb-2 text-muted">
             {post.author} - {new Date(post.createdAt).toLocaleString()}
           </Card.Subtitle>
           <Card.Text>{post.content}</Card.Text>
-          <div className="d-flex justify-content-between align-items-center vote-group">
-            <div>
+          <div className="vote-container">
+            <div className="vote-buttons">
               <Button
-                variant="success"
+                className={`upvote ${userVote && userVote.vote === 1 ? "active" : ""}`}
                 size="sm"
-                className={userVote && userVote.vote === 1 ? "active" : ""}
-                disabled={userVote && userVote.vote === 1}
+                variant='outline-dark'
                 onClick={() => votePost('up')}
               >
-                ↑
+                ▲
               </Button>
-              <span>{post.votes}</span>
+              <span className="vote-count"> {post.votes} </span>
               <Button
-                variant="danger"
+                className={`downvote ${userVote && userVote.vote === -1 ? "active" : ""}`}
                 size="sm"
-                className={userVote && userVote.vote === -1 ? "active" : ""}
-                disabled={userVote && userVote.vote === -1}
+                variant='outline-dark'
                 onClick={() => votePost('down')}
               >
-                ↓
+                ▼
               </Button>
             </div>
           </div>
         </Card.Body>
       </Card>
       
-      <h5>Replies</h5>
+      <div className="community-header">
+        <h3>Replies</h3>
+      </div>
+
       {error && <Alert variant="danger">{error}</Alert>}
-      <Form.Group className="mb-3">
-        <Form.Control
-          type="text"
-          placeholder="Add a reply..."
-          value={mainReplyText}
-          onChange={(e) => setMainReplyText(e.target.value)}
-        />
-      </Form.Group>
-      <Button variant="secondary" onClick={() => { submitReply(null, mainReplyText); setMainReplyText(''); }}>
-        Submit Reply
-      </Button>
+      
+      <Form className="post-form mb-3">
+        <Form.Group>
+          <Form.Control
+            as="textarea"
+            placeholder="Add a reply..."
+            value={mainReplyText}
+            onChange={(e) => setMainReplyText(e.target.value)}
+          />
+        </Form.Group>
+        <Button 
+          variant="dark" 
+          className="mt-3 w-100" 
+          onClick={() => { 
+            submitReply(null, mainReplyText); 
+            setMainReplyText(''); 
+          }}
+        >
+          Submit Reply
+        </Button>
+      </Form>
       
       {post.replies && post.replies.length > 0 && (
         <div className="mt-3">
           {post.replies.map(reply => (
-            <ReplyItem key={reply._id} reply={reply} loggedInUser={loggedInUser} voteReply={voteReply} submitReply={submitReply} />
+            <ReplyItem 
+              key={reply._id} 
+              reply={reply} 
+              loggedInUser={loggedInUser} 
+              voteReply={voteReply} 
+              submitReply={submitReply} 
+            />
           ))}
         </div>
       )}
