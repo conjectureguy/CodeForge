@@ -67,21 +67,21 @@ function LoginPage() {
                     <Form onSubmit={startLogin}>
                         {error && <Alert variant="danger">{error}</Alert>}
                         <Form.Group className="mb-3">
-                            <Form.Label>Enter your Codeforces username:</Form.Label>
+                            <Form.Label className='text'>Enter your Codeforces username:</Form.Label>
                             <Form.Control
                                 type="text"
                                 value={username}
                                 onChange={(e) => setUsername(e.target.value)}
                             />
                         </Form.Group>
-                        <Button className="login-button" variant="primary" type="submit" disabled={loading}>
+                        <Button className="login-button" variant="dark" type="submit" disabled={loading}>
                             {loading ? <Spinner animation="border" size="sm" /> : 'Start Login Challenge'}
                         </Button>
                     </Form>
                 ) : (
                     <div>
                         {message && <Alert variant="info">{message}</Alert>}
-                        <Button className="login-button" variant="success" onClick={checkChallenge} disabled={checkLoading}>
+                        <Button className="login-button" variant="outline-dark" onClick={checkChallenge} disabled={checkLoading}>
                             {checkLoading ? <Spinner animation="border" size="sm" /> : 'Check Challenge'}
                         </Button>
                     </div>
