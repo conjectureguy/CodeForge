@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ListGroup, Spinner, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
+import './friendspage.css';
 
 function FriendsPage() {
   const [friends, setFriends] = useState([]);
@@ -23,7 +24,7 @@ function FriendsPage() {
     setFriends(storedFriends);
   }, []);
 
-  // Fetch friend data from CodeForces API (single request, no sorting)
+  // Fetch friend data from CodeForces API
   useEffect(() => {
     if (friends.length === 0) return;
     setLoading(true);
@@ -42,19 +43,21 @@ function FriendsPage() {
   }, [friends]);
 
   return (
-    <div>
-      <h2>My Friends</h2>
+    <div className="friends-page">
+      <h2 className="page-heading">My Friends</h2>
       {error && <Alert variant="danger">{error}</Alert>}
       {loading && <Spinner animation="border" variant="primary" />}
       {friendsData.length > 0 && (
-        <ListGroup>
+        <ListGroup className="friends-list">
           {friendsData.map((friend) => (
             <ListGroup.Item
               action
               key={friend.handle}
               onClick={() => navigate(`/compare/${friend.handle}`)}
+              className="friend-item"
             >
-              {friend.handle} — Rating: {friend.rating}
+              <span className="friend-handle">{friend.handle}</span>
+              <span className="friend-rating">{friend.rating}</span>
             </ListGroup.Item>
           ))}
         </ListGroup>
