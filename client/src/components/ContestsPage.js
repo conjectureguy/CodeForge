@@ -47,7 +47,6 @@ function ContestsPage() {
               <option value="ALL">All</option>
               <option value="BEFORE">Before</option>
               <option value="CODING">Coding</option>
-              <option value="PENDING">Pending</option>
               <option value="FINISHED">Finished</option>
             </Form.Control>
           </Form.Group>
