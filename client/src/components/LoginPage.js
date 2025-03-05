@@ -1,8 +1,8 @@
-// src/components/LoginPage.js
 import React, { useState } from 'react';
 import { Form, Button, Alert, Spinner } from 'react-bootstrap';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import './LoginPage.css';
 
 function LoginPage() {
     const [username, setUsername] = useState('');
@@ -25,12 +25,12 @@ function LoginPage() {
             setChallenge(res.data);
             // Display the problem link as a clickable href.
             setMessage(
-              <>
-                Challenge started! Please submit a compilation error for the following problem within 60 seconds:{' '}
-                <a href={res.data.problemLink} target="_blank" rel="noopener noreferrer">
-                  {res.data.problemLink}
-                </a>
-              </>
+                <>
+                    Challenge started! Please submit a compilation error for the following problem within 60 seconds:{' '}
+                    <a href={res.data.problemLink} target="_blank" rel="noopener noreferrer">
+                        {res.data.problemLink}
+                    </a>
+                </>
             );
         } catch (err) {
             console.log(err);
@@ -60,31 +60,33 @@ function LoginPage() {
     };
 
     return (
-        <div>
-            <h2>Login</h2>
-            {!challenge ? (
-                <Form onSubmit={startLogin}>
-                    {error && <Alert variant="danger">{error}</Alert>}
-                    <Form.Group className="mb-3">
-                        <Form.Label>Enter your Codeforces username:</Form.Label>
-                        <Form.Control
-                            type="text"
-                            value={username}
-                            onChange={(e) => setUsername(e.target.value)}
-                        />
-                    </Form.Group>
-                    <Button variant="primary" type="submit" disabled={loading}>
-                        {loading ? <Spinner animation="border" size="sm" /> : 'Start Login Challenge'}
-                    </Button>
-                </Form>
-            ) : (
-                <div>
-                    {message && <Alert variant="info">{message}</Alert>}
-                    <Button variant="success" onClick={checkChallenge} disabled={checkLoading}>
-                        {checkLoading ? <Spinner animation="border" size="sm" /> : 'Check Challenge'}
-                    </Button>
-                </div>
-            )}
+        <div className="login-container">
+            <div className="login-box">
+                <h2 className="title">Login</h2>
+                {!challenge ? (
+                    <Form onSubmit={startLogin}>
+                        {error && <Alert variant="danger">{error}</Alert>}
+                        <Form.Group className="mb-3">
+                            <Form.Label>Enter your Codeforces username:</Form.Label>
+                            <Form.Control
+                                type="text"
+                                value={username}
+                                onChange={(e) => setUsername(e.target.value)}
+                            />
+                        </Form.Group>
+                        <Button className="login-button" variant="primary" type="submit" disabled={loading}>
+                            {loading ? <Spinner animation="border" size="sm" /> : 'Start Login Challenge'}
+                        </Button>
+                    </Form>
+                ) : (
+                    <div>
+                        {message && <Alert variant="info">{message}</Alert>}
+                        <Button className="login-button" variant="success" onClick={checkChallenge} disabled={checkLoading}>
+                            {checkLoading ? <Spinner animation="border" size="sm" /> : 'Check Challenge'}
+                        </Button>
+                    </div>
+                )}
+            </div>
         </div>
     );
 }
