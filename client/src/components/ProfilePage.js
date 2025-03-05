@@ -38,7 +38,6 @@ function ProfilePage() {
   const [friends, setFriends] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
-  // New state for custom contests
   const [customContests, setCustomContests] = useState([]);
 
   const navigate = useNavigate();

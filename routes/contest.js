@@ -3,7 +3,7 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 const Contest = require('../models/Contest');
-const Team = require('../models/Team'); // In case you need to use it for team creation/lookup
+const Team = require('../models/Team'); // For team creation/lookup if needed
 
 // 1. Create a new custom contest
 router.post('/create', async (req, res) => {
@@ -12,27 +12,23 @@ router.post('/create', async (req, res) => {
     if (!name || !startTime || !duration || !admin) {
       return res.status(400).json({ error: 'Missing required fields.' });
     }
-    // Initialize the contest with the admin as an individual participant
+    // Initialize with the admin as an individual participant
     const contest = new Contest({
       name,
       startTime: new Date(startTime),
       duration,
       admin,
       problems: problems || [],
-      participants: [
-        {
-          isTeam: false,
-          username: admin,
-          submissions: [],
-        },
-      ],
+      participants: [{
+        isTeam: false,
+        username: admin,
+        submissions: [],
+      }],
     });
     await contest.save();
-
     // Generate a unique slug, e.g. "contest-<id>"
     contest.slug = `contest-${contest._id}`;
     await contest.save();
-
     res.json({ success: true, contestId: contest._id, contestLink: contest.slug });
   } catch (error) {
     console.error('Error creating contest:', error);
@@ -48,16 +44,14 @@ router.post('/:contestId/add-problem', async (req, res) => {
     const parts = problemLink.split('/');
     const contestCode = parts[4];
     const problemIndex = parts[6];
-
     const contest = await Contest.findById(contestId);
     if (!contest) {
       return res.status(404).json({ error: 'Contest not found' });
     }
-    // Enforce max 26 problems
+    // Enforce maximum 26 problems
     if (contest.problems.length >= 26) {
       return res.status(400).json({ error: 'Cannot add more than 26 problems.' });
     }
-
     const problemObj = {
       contestLink: problemLink,
       contestId: contestCode,
@@ -66,7 +60,6 @@ router.post('/:contestId/add-problem', async (req, res) => {
     };
     contest.problems.push(problemObj);
     await contest.save();
-
     res.json({ success: true, contest });
   } catch (error) {
     console.error('Error adding problem:', error);
@@ -86,7 +79,6 @@ router.post('/:contestId/add-random', async (req, res) => {
     if (contest.problems.length >= 26) {
       return res.status(400).json({ error: 'Cannot add more than 26 problems.' });
     }
-
     const response = await axios.get('https://codeforces.com/api/problemset.problems');
     if (response.data.status !== 'OK') {
       throw new Error('Error fetching problemset');
@@ -106,7 +98,6 @@ router.post('/:contestId/add-random', async (req, res) => {
     };
     contest.problems.push(problemObj);
     await contest.save();
-
     res.json({ success: true, contest });
   } catch (error) {
     console.error('Error adding random problem:', error);
@@ -126,11 +117,8 @@ router.post('/:contestId/join', async (req, res) => {
     if (!contest) {
       return res.status(404).json({ error: 'Contest not found' });
     }
-
     // Check if user is already added as individual
-    const existing = contest.participants.find(
-      (p) => p.isTeam === false && p.username === username
-    );
+    const existing = contest.participants.find(p => p.isTeam === false && p.username === username);
     if (!existing) {
       contest.participants.push({
         isTeam: false,
@@ -154,41 +142,33 @@ router.post('/:contestId/join-team', async (req, res) => {
     if (!teamName) {
       return res.status(400).json({ error: 'Team name is required.' });
     }
-
     let finalMembers = [];
     if (members) {
-      // If members are provided, we create a new team
       if (!Array.isArray(members)) {
         return res.status(400).json({ error: 'Members must be provided as an array.' });
       }
-      const filteredMembers = members.filter((m) => m && m.trim() !== '');
+      const filteredMembers = members.filter(m => m && m.trim() !== '');
       if (filteredMembers.length < 1 || filteredMembers.length > 3) {
         return res.status(400).json({ error: 'Team name + 1–3 members required.' });
       }
-      // Create a new team
+      // Create a new team with the given members
       const newTeam = new Team({ teamName, members: filteredMembers });
       await newTeam.save();
       finalMembers = filteredMembers;
     } else {
-      // If no members, find existing team by teamName
+      // If no members provided, try to find an existing team by teamName
       const existingTeam = await Team.findOne({ teamName });
       if (!existingTeam) {
-        return res
-          .status(400)
-          .json({ error: 'Team not found. Please create your team first.' });
+        return res.status(400).json({ error: 'Team not found. Please create your team first.' });
       }
       finalMembers = existingTeam.members;
     }
-
     const contest = await Contest.findById(contestId);
     if (!contest) {
       return res.status(404).json({ error: 'Contest not found' });
     }
-
-    // If this team is not already in participants, add it
-    const existing = contest.participants.find(
-      (p) => p.isTeam && p.teamName === teamName
-    );
+    // Check if this team is already added
+    const existing = contest.participants.find(p => p.isTeam && p.teamName === teamName);
     if (!existing) {
       contest.participants.push({
         isTeam: true,
@@ -198,20 +178,13 @@ router.post('/:contestId/join-team', async (req, res) => {
       });
       await contest.save();
     }
-
-    // If any of these members are also in the participant list as individuals, remove them
-    // e.g., if admin or any user is also an individual
-    const updatedParticipants = contest.participants.filter((p) => {
-      if (p.isTeam) return true; // keep all teams
-      // Exclude an individual if they are in finalMembers
-      if (!p.isTeam && finalMembers.includes(p.username)) {
-        return false;
-      }
+    // Remove individual participants who are also in this team
+    contest.participants = contest.participants.filter(p => {
+      if (p.isTeam) return true;
+      if (!p.isTeam && finalMembers.includes(p.username)) return false;
       return true;
     });
-    contest.participants = updatedParticipants;
     await contest.save();
-
     res.json({ success: true, message: 'Team joined contest successfully', contest });
   } catch (error) {
     console.error('Error joining as team:', error);
@@ -225,9 +198,7 @@ router.get('/slug/:slug', async (req, res) => {
     const { slug } = req.params;
     const contest = await Contest.findOne({ slug });
     if (!contest) {
-      return res
-        .status(404)
-        .json({ success: false, error: 'Contest not found' });
+      return res.status(404).json({ success: false, error: 'Contest not found' });
     }
     res.json({ success: true, contest });
   } catch (error) {
@@ -242,34 +213,32 @@ router.get('/slug/:slug/leaderboard', async (req, res) => {
     const { slug } = req.params;
     const contest = await Contest.findOne({ slug });
     if (!contest) {
-      return res
-        .status(404)
-        .json({ success: false, error: 'Contest not found' });
+      return res.status(404).json({ success: false, error: 'Contest not found' });
     }
-
     const contestStart = new Date(contest.startTime);
     const problems = contest.problems;
 
     // Build a set of usernames that are in any team.
     const usersInTeams = new Set();
-    contest.participants.forEach((p) => {
+    contest.participants.forEach(p => {
       if (p.isTeam && p.members) {
-        p.members.forEach((m) => usersInTeams.add(m));
+        p.members.forEach(m => usersInTeams.add(m));
       }
     });
 
-    // finalParticipants: keep teams; exclude any user who is in a team
-    const finalParticipants = contest.participants.filter((p) => {
-      if (p.isTeam) return true; // keep all teams
-      if (!p.isTeam && usersInTeams.has(p.username)) return false; // remove user in a team
+    // Create final list: include team participants; exclude individual participants if they're also in a team.
+    const finalParticipants = contest.participants.filter(p => {
+      if (p.isTeam) return true;
+      if (!p.isTeam && usersInTeams.has(p.username)) return false;
       return true;
     });
 
-    // Dummy scoreboard logic
+    // For each participant, compute solved count and penalty (dummy logic for now)
     const leaderboard = [];
     for (const participant of finalParticipants) {
       let solvedCount = 0;
       let totalPenalty = 0;
+      // Here you would normally compute based on Codeforces submissions.
       leaderboard.push({
         isTeam: participant.isTeam,
         username: participant.username || '',
@@ -280,7 +249,7 @@ router.get('/slug/:slug/leaderboard', async (req, res) => {
       });
     }
 
-    // Sort by solvedCount desc, penalty asc
+    // Sort leaderboard by solvedCount descending and penalty ascending.
     leaderboard.sort((a, b) => {
       if (b.solvedCount !== a.solvedCount) return b.solvedCount - a.solvedCount;
       return a.penalty - b.penalty;
@@ -289,6 +258,16 @@ router.get('/slug/:slug/leaderboard', async (req, res) => {
     res.json({ success: true, leaderboard });
   } catch (error) {
     console.error('Error fetching leaderboard:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// 8. Get all contests endpoint
+router.get('/', async (req, res) => {
+  try {
+    const contests = await Contest.find();
+    res.json({ success: true, contests });
+  } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
 });
