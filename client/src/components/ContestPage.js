@@ -13,6 +13,7 @@ import {
 } from 'react-bootstrap';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import './contestpage.css';
 
 function ContestPage() {
   const [activeTab, setActiveTab] = useState('create');
@@ -43,7 +44,6 @@ function ContestPage() {
   // ----- Join Contest (Team) States -----
   const [joinTeamId, setJoinTeamId] = useState('');
   const [joinTeamName, setJoinTeamName] = useState('');
-  // Initialize as empty array so no unwanted empty strings are sent
   const [joinTeamMembers, setJoinTeamMembers] = useState([]);
   const [joinTeamError, setJoinTeamError] = useState('');
   const [joinTeamMsg, setJoinTeamMsg] = useState('');
@@ -65,7 +65,6 @@ function ContestPage() {
     try {
       const res = await axios.get('http://localhost:5000/api/teams');
       if (res.data.success) {
-        // Filter teams where the admin is one of the members
         const myTeamsList = res.data.teams.filter((team) =>
           team.members.includes(admin)
         );
@@ -95,7 +94,6 @@ function ContestPage() {
       if (res.data.success) {
         setCreatedContest({ id: res.data.contestId, link: res.data.contestLink });
         setCreateMsg(`Contest created! Contest ID: ${res.data.contestId}`);
-        // Fetch teams so admin can choose to join as team, if desired
         fetchMyTeams();
       }
     } catch (err) {
@@ -155,19 +153,16 @@ function ContestPage() {
       return;
     }
     try {
-      // If admin chose to join as team and selected a team, call join-team endpoint
       if (joinAsTeamAdmin && selectedTeam) {
         await axios.post(
           `http://localhost:5000/api/contests/${createdContest.id}/join-team`,
           { teamName: selectedTeam }
         );
       } else {
-        // Otherwise, join as individual
         await axios.post(`http://localhost:5000/api/contests/${createdContest.id}/join`, {
           username: admin,
         });
       }
-      // Clear creation fields and switch to "My Contests" tab
       setContestName('');
       setStartTime('');
       setDuration('');
@@ -217,7 +212,6 @@ function ContestPage() {
       return;
     }
     const filteredMembers = joinTeamMembers.filter((m) => m.trim() !== '');
-    // If creating a new team, require 1–3 members; otherwise, assume team exists
     if (filteredMembers.length > 0 && (filteredMembers.length < 1 || filteredMembers.length > 3)) {
       setJoinTeamError('Team must have 1 to 3 valid members.');
       return;
@@ -250,7 +244,6 @@ function ContestPage() {
     try {
       const res = await axios.get('http://localhost:5000/api/contests');
       if (res.data.success) {
-        // Filter contests to only those in which the current admin participates (as individual or team)
         const myContests = res.data.contests.filter((contest) =>
           contest.participants.some((p) => {
             if (p.isTeam) {
@@ -315,15 +308,15 @@ function ContestPage() {
   };
 
   return (
-    <div>
-      <h2>Custom Contest</h2>
+    <div className="contest-page">
+      <h2 className="page-heading">Custom Contest</h2>
       <Tabs activeKey={activeTab} onSelect={(k) => setActiveTab(k)} className="mb-3">
         {/* CREATE CONTEST TAB */}
         <Tab eventKey="create" title="Create Contest">
           {createError && <Alert variant="danger">{createError}</Alert>}
           {createMsg && <Alert variant="success">{createMsg}</Alert>}
           {!createdContest ? (
-            <Form>
+            <Form className="contest-form">
               <Form.Group className="mb-3">
                 <Form.Label>Contest Name</Form.Label>
                 <Form.Control
@@ -348,7 +341,7 @@ function ContestPage() {
                   onChange={(e) => setDuration(e.target.value)}
                 />
               </Form.Group>
-              <Button variant="primary" onClick={createContest} disabled={loading}>
+              <Button className="full-btn" variant="dark" onClick={createContest} disabled={loading}>
                 {loading ? <Spinner animation="border" size="sm" /> : 'Create Contest'}
               </Button>
             </Form>
@@ -357,7 +350,6 @@ function ContestPage() {
               <Alert variant="info">
                 Contest created! Contest ID: {createdContest.id} | Link: {window.location.origin}/contest/{createdContest.link}
               </Alert>
-              {/* Ask admin if they want to join as team */}
               <Form.Group className="mb-3">
                 <Form.Label>Join contest as:</Form.Label>
                 <Form.Check
@@ -400,7 +392,7 @@ function ContestPage() {
               <h4>Manage Contest Problems</h4>
               <Row className="mb-3">
                 <Col md={6}>
-                  <Form.Group>
+                  <Form.Group className="mb-3">
                     <Form.Label>Add Problem by Link</Form.Label>
                     <Form.Control
                       type="text"
@@ -409,12 +401,12 @@ function ContestPage() {
                       onChange={(e) => setProblemLink(e.target.value)}
                     />
                   </Form.Group>
-                  <Button variant="primary" onClick={addProblem} disabled={loading} className="mt-2">
+                  <Button className="full-btn" variant="dark" onClick={addProblem} disabled={loading}>
                     Add Problem
                   </Button>
                 </Col>
                 <Col md={6}>
-                  <Form.Group>
+                  <Form.Group className="mb-3">
                     <Form.Label>Add Random Problem</Form.Label>
                     <Form.Control
                       type="number"
@@ -423,33 +415,33 @@ function ContestPage() {
                       onChange={(e) => setRandomRating(e.target.value)}
                     />
                   </Form.Group>
-                  <Button variant="primary" onClick={addRandomProblem} disabled={loading} className="mt-2">
+                  <Button className="full-btn" variant="dark" onClick={addRandomProblem} disabled={loading}>
                     Add Random Problem
                   </Button>
                 </Col>
               </Row>
               <ListGroup className="mb-3">
                 {problems.map((p, idx) => (
-                  <ListGroup.Item key={idx}>
-                    {String.fromCharCode(65 + idx)} {'. '}
-                    <a href={p.contestLink} target="_blank" rel="noopener noreferrer">
-                      {p.contestLink}
-                    </a>{' '}
+                  <ListGroup.Item key={idx} className="contest-list-item">
+                    <div>
+                      {String.fromCharCode(65 + idx)}.{' '}
+                      <a href={p.contestLink} target="_blank" rel="noopener noreferrer">
+                        {p.contestLink}
+                      </a>
+                    </div>
                   </ListGroup.Item>
                 ))}
               </ListGroup>
-              <Button variant="success" onClick={saveChanges} disabled={loading}>
+              <Button className="full-btn" variant="success" onClick={saveChanges} disabled={loading}>
                 Save Changes
               </Button>
             </>
           )}
         </Tab>
 
-        {/* JOIN CONTEST TAB */}
         <Tab eventKey="join" title="Join Contest" onClick={fetchMyTeams}>
           {joinError && <Alert variant="danger">{joinError}</Alert>}
           {joinMsg && <Alert variant="success">{joinMsg}</Alert>}
-          {/* Join as Individual */}
           <Form className="mb-3">
             <Form.Group className="mb-3">
               <Form.Label>Enter Contest ID or Link (Individual)</Form.Label>
@@ -460,12 +452,11 @@ function ContestPage() {
                 onChange={(e) => setJoinId(e.target.value)}
               />
             </Form.Group>
-            <Button variant="primary" onClick={joinContest} disabled={joinLoading}>
+            <Button className="full-btn" variant="dark" onClick={joinContest} disabled={joinLoading}>
               {joinLoading ? 'Joining...' : 'Join Contest (Individual)'}
             </Button>
           </Form>
           <hr />
-          {/* Join as Team */}
           <h4>Join as Team</h4>
           {joinTeamError && <Alert variant="danger">{joinTeamError}</Alert>}
           {joinTeamMsg && <Alert variant="success">{joinTeamMsg}</Alert>}
@@ -478,24 +469,12 @@ function ContestPage() {
               onChange={(e) => setJoinTeamId(e.target.value)}
             />
           </Form.Group>
-          {/* <Form.Group className="mb-3">
-            <Form.Label>Team Name</Form.Label>
-            <Form.Control
-              type="text"
-              placeholder="Enter your team name"
-              value={joinTeamName}
-              onChange={(e) => setJoinTeamName(e.target.value)}
-            />
-          </Form.Group> */}
-
           <Form.Group className="mb-3">
             <Form.Label>Select Your Team</Form.Label>
             <Form.Control
               as="select"
               value={selectedTeam}
-              onChange={(e) => {setSelectedTeam(e.target.value);
-                setJoinTeamName(e.target.value);
-              }}
+              onChange={(e) => { setSelectedTeam(e.target.value); setJoinTeamName(e.target.value); }}
             >
               <option value="">-- Select Team --</option>
               {myTeams.map((team) => (
@@ -505,43 +484,13 @@ function ContestPage() {
               ))}
             </Form.Control>
           </Form.Group>
-
-          {/* <Form.Label>
-            Team Members (Optional: to register a new team; leave blank if using an existing team)
-          </Form.Label>
-          {joinTeamMembers.map((mem, idx) => (
-            <Form.Group key={idx} className="mb-2">
-              <Form.Control
-                type="text"
-                placeholder="Codeforces handle"
-                value={mem}
-                onChange={(e) => handleTeamMemberChange(idx, e.target.value)}
-              />
-              {joinTeamMembers.length > 1 && (
-                <Button
-                  variant="danger"
-                  size="sm"
-                  className="mt-1"
-                  onClick={() => removeTeamMemberField(idx)}
-                >
-                  Remove
-                </Button>
-              )}
-            </Form.Group>
-          ))}
-          {joinTeamMembers.length < 3 && (
-            <Button variant="secondary" size="sm" onClick={addTeamMemberField} className="mb-3">
-              Add Member
-            </Button>
-          )} */}
           <div className="mb-3">
-            <Button variant="primary" onClick={joinAsTeam} disabled={joinTeamLoading}>
+            <Button className="full-btn" variant="dark" onClick={joinAsTeam} disabled={joinTeamLoading}>
               {joinTeamLoading ? 'Joining...' : 'Join Contest (Team)'}
             </Button>
           </div>
         </Tab>
 
-        {/* MY CONTESTS TAB */}
         <Tab eventKey="mycontests" title="My Contests">
           {contestsError && <Alert variant="danger">{contestsError}</Alert>}
           {contestsLoading && <Spinner animation="border" variant="primary" />}
@@ -551,10 +500,11 @@ function ContestPage() {
               {upcoming.length > 0 ? (
                 <ListGroup className="mb-3">
                   {upcoming.map((contest) => (
-                    <ListGroup.Item key={contest._id}>
-                      <strong>{contest.name}</strong> - Starts at:{' '}
-                      {new Date(contest.startTime).toLocaleString()}
-                      <Button variant="primary" size="sm" className="ms-3" disabled>
+                    <ListGroup.Item key={contest._id} className="contest-list-item">
+                      <div>
+                        <strong>{contest.name}</strong> - Starts at: {new Date(contest.startTime).toLocaleString()}
+                      </div>
+                      <Button variant="dark" size="sm" className="small-btn" disabled>
                         Enter Contest
                       </Button>
                     </ListGroup.Item>
@@ -567,10 +517,11 @@ function ContestPage() {
               {running.length > 0 ? (
                 <ListGroup className="mb-3">
                   {running.map((contest) => (
-                    <ListGroup.Item key={contest._id}>
-                      <strong>{contest.name}</strong> - Started at:{' '}
-                      {new Date(contest.startTime).toLocaleString()}
-                      <Button variant="primary" size="sm" className="ms-3" onClick={() => navigate(`/contest/${contest.slug}`)}>
+                    <ListGroup.Item key={contest._id} className="contest-list-item">
+                      <div>
+                        <strong>{contest.name}</strong> - Started at: {new Date(contest.startTime).toLocaleString()}
+                      </div>
+                      <Button variant="dark" size="sm" className="small-btn" onClick={() => navigate(`/contest/${contest.slug}`)}>
                         Enter Contest
                       </Button>
                     </ListGroup.Item>
@@ -583,10 +534,11 @@ function ContestPage() {
               {completed.length > 0 ? (
                 <ListGroup className="mb-3">
                   {completed.map((contest) => (
-                    <ListGroup.Item key={contest._id}>
-                      <strong>{contest.name}</strong> - Ended at:{' '}
-                      {new Date(new Date(contest.startTime).getTime() + contest.duration * 60000).toLocaleString()}
-                      <Button variant="primary" size="sm" className="ms-3" onClick={() => navigate(`/contest/${contest.slug}`)}>
+                    <ListGroup.Item key={contest._id} className="contest-list-item">
+                      <div>
+                        <strong>{contest.name}</strong> - Ended at: {new Date(new Date(contest.startTime).getTime() + contest.duration * 60000).toLocaleString()}
+                      </div>
+                      <Button variant="dark" size="sm" className="small-btn" onClick={() => navigate(`/contest/${contest.slug}`)}>
                         View Contest
                       </Button>
                     </ListGroup.Item>
