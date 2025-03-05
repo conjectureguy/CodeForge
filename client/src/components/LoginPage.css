@@ -5,14 +5,14 @@
     align-items: center;
     justify-content: center;
     min-height: 100vh;
-    background-color: #f8f9fa;
+    background-color: #ffffff;
     font-family: 'Fira Code', 'Courier New', monospace;
     padding: 20px;
   }
   
   /* Box styling for the login form */
   .login-box {
-    background: #ffffff;
+    background: #eeeeee;
     padding: 2rem;
     border-radius: 8px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -23,10 +23,11 @@
   
   /* Title styling */
   .title {
-    color: #2c3e50;
+    color: #434343;
     text-align: center;
     margin-bottom: 1.5rem;
     font-weight: 600;
+    font-size: 3rem;
   }
   
   /* Button styling */
@@ -36,6 +37,7 @@
     font-size: 1rem;
     font-weight: 500;
     transition: background-color 0.3s ease, transform 0.1s ease;
+    color: #2c3e50;
   }
   
   .login-button:hover {
@@ -56,4 +58,6 @@
     from { transform: translateY(-20px); }
     to { transform: translateY(0); }
   }
-  
+  .text{
+    font-size: 1.25rem;
+  }
