@@ -106,6 +106,7 @@ const Community = ({ currentUser }) => {
                   <Button
                     className={`upvote ${userVote && userVote.vote === 1 ? "active" : ""}`}
                     size="sm"
+                    variant='outline-success'
                     onClick={() => {
                       if (!currentUser) return alert("Please log in to vote");
                       fetch(`http://localhost:5000/api/community/posts/${post._id}/vote`, {
@@ -114,11 +115,14 @@ const Community = ({ currentUser }) => {
                         body: JSON.stringify({ type: 'up', user: currentUser })
                       }).then(fetchPosts);
                     }}
-                  />
+                  >
+                    ▲
+                    </Button>
                   <span>{post.votes}</span>
                   <Button
                     className={`downvote ${userVote && userVote.vote === -1 ? "active" : ""}`}
                     size="sm"
+                    variant='outline-danger'
                     onClick={() => {
                       if (!currentUser) return alert("Please log in to vote");
                       fetch(`http://localhost:5000/api/community/posts/${post._id}/vote`, {
@@ -127,9 +131,13 @@ const Community = ({ currentUser }) => {
                         body: JSON.stringify({ type: 'down', user: currentUser })
                       }).then(fetchPosts);
                     }}
-                  />
+                  >
+                    ▼
+
+                 </Button>
+
                 </div>
-                <Button className="comments-btn" variant="outline-primary" onClick={() => navigate(`/blog/${post._id}`)}>
+                <Button className="comments-btn" variant="outline-success" onClick={() => navigate(`/blog/${post._id}`)}>
                   Comments
                 </Button>
               </div>
