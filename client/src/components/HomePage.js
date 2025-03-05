@@ -1,8 +1,8 @@
-// src/components/HomePage.js
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Alert, Card, Row, Col, Container } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import Community from './Community';
+import './community.css'; // Ensure this file is in the same folder
 
 function HomePage() {
   const [searchHandle, setSearchHandle] = useState('');
@@ -52,18 +52,19 @@ function HomePage() {
           <Community currentUser={currentUser} />
         </Col>
         <Col md={4}>
-          <h2 className="my-3">Search for a Profile</h2>
-          {error && <Alert variant="danger">{error}</Alert>}
-          <Form.Group className="mb-3">
-            <Form.Control
-              type="text"
-              placeholder="Enter Codeforces handle"
-              value={searchHandle}
-              onChange={(e) => setSearchHandle(e.target.value)}
-            />
-          </Form.Group>
-          <Button variant="primary" onClick={handleSearch}>Search</Button>
-
+          <div className="profile-search-box">
+            <h2 className="my-3">Search for a Profile</h2>
+            {error && <Alert variant="danger">{error}</Alert>}
+            <Form.Group className="mb-3">
+              <Form.Control
+                type="text"
+                placeholder="Enter Codeforces handle"
+                value={searchHandle}
+                onChange={(e) => setSearchHandle(e.target.value)}
+              />
+            </Form.Group>
+            <Button variant="primary" onClick={handleSearch}>Search</Button>
+          </div>
           {profile && (
             <Card className="mt-4">
               <Card.Body>
