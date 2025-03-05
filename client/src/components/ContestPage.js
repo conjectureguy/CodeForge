@@ -342,7 +342,7 @@ function ContestPage() {
                 />
               </Form.Group>
               <Button className="full-btn" variant="dark" onClick={createContest} disabled={loading}>
-                {loading ? <Spinner animation="border" size="sm" /> : 'Create Contest'}
+                {loading ? <Spinner animation="border" size="sm" variant='dark'/> : 'Create Contest'}
               </Button>
             </Form>
           ) : (
@@ -493,7 +493,7 @@ function ContestPage() {
 
         <Tab eventKey="mycontests" title="My Contests">
           {contestsError && <Alert variant="danger">{contestsError}</Alert>}
-          {contestsLoading && <Spinner animation="border" variant="primary" />}
+          {contestsLoading && <Spinner animation="border" variant="dark" />}
           {!contestsLoading && (
             <>
               <h4>Upcoming Contests</h4>
