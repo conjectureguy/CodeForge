@@ -1,49 +1,73 @@
-// src/components/TeamsPage.js
+
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Alert, Spinner, ListGroup } from 'react-bootstrap';
 import axios from 'axios';
 
 function TeamsPage() {
+  // Get the current user's CodeForces handle from localStorage
+  const currentUser = localStorage.getItem('myHandle');
+
   const [teamName, setTeamName] = useState('');
-  const [members, setMembers] = useState(['']); // Start with one member field
+  // The members state now represents only additional members (other than the logged-in user)
+  const [members, setMembers] = useState(['']);
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [teams, setTeams] = useState([]);
 
-  // Add another member field (max 3)
+  // Limit additional members to 2 (since the logged-in user is automatically included)
   const addMemberField = () => {
-    if (members.length < 3) {
+    if (members.length < 2) {
       setMembers([...members, '']);
     }
   };
 
-  // Remove a member field
   const removeMemberField = (index) => {
     const newMembers = members.filter((_, i) => i !== index);
     setMembers(newMembers);
   };
 
-  // Handle change for a member input
   const handleMemberChange = (index, value) => {
     const newMembers = [...members];
     newMembers[index] = value;
     setMembers(newMembers);
   };
 
-  // Create team handler
+  // Create team handler: ensures currentUser is included in the team members.
   const createTeam = async () => {
     setError('');
     setMessage('');
-    // Filter out empty member values
-    const validMembers = members.filter(m => m.trim() !== '');
-    if (!teamName.trim() || validMembers.length < 1 || validMembers.length > 3) {
-      setError('Team name and 1 to 3 members are required.');
+
+    // Block team creation if no user is logged in
+    if (!currentUser) {
+      setError('You must be logged in to create a team.');
       return;
     }
+
+    // Filter out empty strings from additional members input
+    const additionalMembers = members.filter(m => m.trim() !== '');
+
+    // Validate the team name
+    if (!teamName.trim()) {
+      setError('Team name is required.');
+      return;
+    }
+
+    // Remove any duplicate if user already entered his/her own handle
+    const filteredAdditional = additionalMembers.filter(m => m !== currentUser);
+
+    // Combine the current user's handle with the additional members
+    const teamMembers = [currentUser, ...filteredAdditional];
+
+    // Optionally, you can validate the total number of team members
+    if (teamMembers.length < 1 || teamMembers.length > 3) {
+      setError('Total team members must be between 1 and 3 (including yourself).');
+      return;
+    }
+
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:5000/api/teams/create', { teamName, members: validMembers });
+      const res = await axios.post('http://localhost:5000/api/teams/create', { teamName, members: teamMembers });
       if (res.data.success) {
         setMessage('Team created successfully.');
         setTeamName('');
@@ -56,7 +80,7 @@ function TeamsPage() {
     setLoading(false);
   };
 
-  // Fetch all teams to display
+  // Fetch all teams from the backend
   const fetchTeams = async () => {
     try {
       const res = await axios.get('http://localhost:5000/api/teams');
@@ -72,6 +96,9 @@ function TeamsPage() {
     fetchTeams();
   }, []);
 
+  // Filter teams where the current user is a member
+  const myTeams = teams.filter(team => currentUser && team.members.includes(currentUser));
+
   return (
     <div>
       <h2>Teams</h2>
@@ -86,7 +113,11 @@ function TeamsPage() {
             onChange={(e) => setTeamName(e.target.value)}
           />
         </Form.Group>
-        <Form.Label>Team Members (Codeforces IDs)</Form.Label>
+        <Form.Text className="text-muted">
+          Your CodeForces handle: {currentUser || 'Not logged in'}
+        </Form.Text>
+        <br/>
+        <Form.Label className="mt-3">Additional Team Members (Codeforces IDs)</Form.Label>
         {members.map((member, index) => (
           <Form.Group className="mb-3" key={index}>
             <Form.Control
@@ -102,7 +133,7 @@ function TeamsPage() {
             )}
           </Form.Group>
         ))}
-        {members.length < 3 && (
+        {members.length < 2 && (
           <Button variant="secondary" onClick={addMemberField}>
             Add Member
           </Button>
@@ -113,15 +144,23 @@ function TeamsPage() {
           </Button>
         </div>
       </Form>
-      <hr />
-      <h3>Existing Teams</h3>
-      <ListGroup>
-        {teams.map(team => (
-          <ListGroup.Item key={team._id}>
-            <strong>{team.teamName}</strong> - Members: {team.members.join(', ')}
-          </ListGroup.Item>
-        ))}
-      </ListGroup>
+      {currentUser && (
+        <>
+          <hr />
+          <h3>My Teams</h3>
+          {myTeams.length > 0 ? (
+            <ListGroup>
+              {myTeams.map(team => (
+                <ListGroup.Item key={team._id}>
+                  <strong>{team.teamName}</strong> - Members: {team.members.join(', ')}
+                </ListGroup.Item>
+              ))}
+            </ListGroup>
+          ) : (
+            <p>You are not a member of any team yet.</p>
+          )}
+        </>
+      )}
     </div>
   );
 }
