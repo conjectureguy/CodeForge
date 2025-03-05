@@ -56,8 +56,10 @@ function FriendsPage() {
               onClick={() => navigate(`/compare/${friend.handle}`)}
               className="friend-item"
             >
-              <span className="friend-handle">{friend.handle}</span>
-              <span className="friend-rating">{friend.rating}</span>
+              <div className="d-flex justify-content-between align-items-center w-100">
+                <span className="friend-handle">{friend.handle}</span>
+                <span className="friend-rating">{friend.rating}</span>
+              </div>
             </ListGroup.Item>
           ))}
         </ListGroup>
