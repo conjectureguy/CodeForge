@@ -1,4 +1,3 @@
-// src/components/FriendsPage.js
 import React, { useState, useEffect } from 'react';
 import { ListGroup, Spinner, Alert } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
@@ -10,7 +9,7 @@ function FriendsPage() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // On mount, check for authentication (JWT token)
+  // Check authentication on mount
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -24,21 +23,19 @@ function FriendsPage() {
     setFriends(storedFriends);
   }, []);
 
-  // Fetch each friend's rating data and sort by rating (decreasing)
+  // Fetch friend data from CodeForces API (single request, no sorting)
   useEffect(() => {
     if (friends.length === 0) return;
     setLoading(true);
-    Promise.all(
-      friends.map((handle) =>
-        fetch(`https://codeforces.com/api/user.info?handles=${handle}`)
-          .then((res) => res.json())
-          .then((data) => data.result[0])
-      )
-    )
-      .then((results) => {
-        // Sort friends by rating (highest first)
-        results.sort((a, b) => b.rating - a.rating);
-        setFriendsData(results);
+    const handles = friends.join(';');
+    fetch(`https://codeforces.com/api/user.info?handles=${handles}`)
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.status === 'OK') {
+          setFriendsData(data.result);
+        } else {
+          setError('Error fetching friend profiles.');
+        }
       })
       .catch(() => setError('Error fetching friend profiles.'))
       .finally(() => setLoading(false));
