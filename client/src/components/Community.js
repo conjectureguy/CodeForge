@@ -72,7 +72,7 @@ const Community = ({ currentUser }) => {
     <Container className="community-container">
       <div className="community-header">
         <h3>Community Blogs</h3>
-        <p>Share your thoughts with fellow CodeForces users!</p>
+        <p>Share your thoughts with fellow CodeForge users!</p>
       </div>
       {error && <Alert variant="danger">{error}</Alert>}
       <Form onSubmit={submitPost} className="post-form">

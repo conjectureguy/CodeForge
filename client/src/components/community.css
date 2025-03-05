@@ -1,3 +1,4 @@
+/* community.css - Best Styling in the World for Your Community Page */
 @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 
 :root {
@@ -123,47 +124,6 @@ body {
   margin-bottom: 1rem;
 }
 
-/* Vote Group */
-.vote-group {
-  display: flex;
-  align-items: center;
-}
-.vote-group button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 0.5rem;
-  font-size: 1.2rem;
-  color: var(--subtext-color);
-  transition: color var(--transition-speed), transform var(--transition-speed);
-}
-.vote-group button:hover:not(:disabled) {
-  color: var(--text-color);
-  transform: scale(1.1);
-}
-.vote-group button:disabled {
-  cursor: default;
-}
-.vote-group span {
-  font-size: 1.2rem;
-  margin: 0 0.5rem;
-  font-weight: 500;
-}
-
-/* Comments Button */
-.comments-btn {
-  background-color: var(--gold-color);
-  color: var(--text-color);
-  border: none;
-  border-radius: 6px;
-  padding: 0.5rem 1rem;
-  transition: background-color var(--transition-speed), transform var(--transition-speed);
-}
-.comments-btn:hover {
-  background-color: var(--accent-dark);
-  transform: scale(1.05);
-}
-
 /* Blog Detail Card */
 .blog-detail-card {
   background-color: var(--card-bg);
@@ -216,7 +176,39 @@ body {
   margin-top: 1rem;
 }
 
-/* Upvote/Downvote Buttons */
+/* Vote Group */
+/* This rule now centers any button inside .vote-group using flexbox */
+.vote-group {
+  display: flex;
+  align-items: center;
+}
+.vote-group button {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0.5rem;
+  font-size: 1.2rem;
+  color: var(--subtext-color);
+  transition: color var(--transition-speed), transform var(--transition-speed);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.vote-group button:hover:not(:disabled) {
+  color: var(--text-color);
+  transform: scale(1.1);
+}
+.vote-group button:disabled {
+  cursor: default;
+}
+.vote-group span {
+  font-size: 1.2rem;
+  margin: 0 0.5rem;
+  font-weight: 500;
+}
+
+/* Upvote/Downvote Buttons for Community.js */
+/* These buttons use background images and already have centered backgrounds */
 .upvote, .downvote {
   width: 32px;
   height: 32px;
@@ -228,27 +220,50 @@ body {
   cursor: pointer;
   transition: background-image 0.3s ease, transform 0.3s ease;
 }
-.upvote:hover, .downvote:hover {
-  transform: scale(1.1);
-}
 
-/* Default Upvote */
+/* Default Upvote Background */
 .upvote {
-    background-color: grey;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%237a7a7a' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='M5 15l7-7 7 7'/%3E%3C/svg%3E");
+  background-color: grey;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%237a7a7a' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='M5 15l7-7 7 7'/%3E%3C/svg%3E");
 }
 
-/* Default Downvote */
+/* Default Downvote Background */
 .downvote {
-    background-color: grey;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%237a7a7a' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+  background-color: grey;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' stroke='%237a7a7a' stroke-width='2' viewBox='0 0 24 24'%3E%3Cpath d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
 }
 
-/* Active Upvote */
-.upvote.active {
-    background-color: transparent;
+/* Active Upvote/Downvote for Community.js */
+.upvote.active, .downvote.active {
+  background-color: transparent;
 }
-/* Active Downvote */
-.downvote.active {
-    background-color: transparent;
+
+/* Upvote/Downvote Buttons for BlogDetailPage.js */
+/* Apply similar centering and sizing to the text buttons used in BlogDetailPage.js */
+.blog-detail-card .vote-group .btn-success,
+.blog-detail-card .vote-group .btn-danger {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 50%;
+  font-size: 1.5em;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+  line-height: 1;
+}
+
+/* Comments Button */
+.comments-btn {
+  background-color: var(--gold-color);
+  color: var(--text-color);
+  border: none;
+  border-radius: 6px;
+  padding: 0.5rem 1rem;
+  transition: background-color var(--transition-speed), transform var(--transition-speed);
+}
+.comments-btn:hover {
+  background-color: var(--accent-dark);
+  transform: scale(1.05);
 }
