@@ -1,6 +1,7 @@
 // routes/users.js
 const express = require('express');
 const router = express.Router();
+const auth = require('../middleware/auth');
 const User = require('../models/User');
 
 // Endpoint to add a friend to a user's friend list
@@ -46,5 +47,6 @@ router.get('/get-friends', async (req, res) => {
     res.status(500).json({ message: 'Error fetching friend list' });
   }
 });
+
 
 module.exports = router;

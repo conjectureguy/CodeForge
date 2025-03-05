@@ -14,6 +14,7 @@ const authRoutes = require('./routes/auth');
 const contestRoutes = require('./routes/contest');
 const profileRoutes = require('./routes/profile');
 const communityRoutes = require('./routes/community');
+const friendRoutes = require('./routes/friends');
 
 const app = express();
 
@@ -34,6 +35,8 @@ app.use('/api/profile', profileRoutes);
 app.use('/api/contests', contestRoutes);
 app.use('/api/community', communityRoutes);
 app.use('/api/teams', teamRoutes);
+app.use('/api/friends', friendRoutes);
+
 
 
 // Create HTTP server and attach Socket.io
