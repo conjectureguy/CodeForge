@@ -342,7 +342,7 @@ function ContestPage() {
                 />
               </Form.Group>
               <Button className="full-btn" variant="dark" onClick={createContest} disabled={loading}>
-                {loading ? <Spinner animation="border" size="sm" variant='dark'/> : 'Create Contest'}
+                {loading ? <Spinner animation="border" size="sm" variant='dark' /> : 'Create Contest'}
               </Button>
             </Form>
           ) : (
@@ -501,12 +501,14 @@ function ContestPage() {
                 <ListGroup className="mb-3">
                   {upcoming.map((contest) => (
                     <ListGroup.Item key={contest._id} className="contest-list-item">
-                      <div>
-                        <strong>{contest.name}</strong> - Starts at: {new Date(contest.startTime).toLocaleString()}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                        <div>
+                          <strong>{contest.name}</strong> - Starts at: {new Date(contest.startTime).toLocaleString()}
+                        </div>
+                        <Button variant="dark" size="sm" className="small-btn" disabled>
+                          Enter Contest
+                        </Button>
                       </div>
-                      <Button variant="dark" size="sm" className="small-btn" disabled>
-                        Enter Contest
-                      </Button>
                     </ListGroup.Item>
                   ))}
                 </ListGroup>
@@ -518,12 +520,14 @@ function ContestPage() {
                 <ListGroup className="mb-3">
                   {running.map((contest) => (
                     <ListGroup.Item key={contest._id} className="contest-list-item">
-                      <div>
-                        <strong>{contest.name}</strong> - Started at: {new Date(contest.startTime).toLocaleString()}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                        <div>
+                          <strong>{contest.name}</strong> - Started at: {new Date(contest.startTime).toLocaleString()}
+                        </div>
+                        <Button variant="dark" size="sm" className="small-btn" onClick={() => navigate(`/contest/${contest.slug}`)}>
+                          Enter Contest
+                        </Button>
                       </div>
-                      <Button variant="dark" size="sm" className="small-btn" onClick={() => navigate(`/contest/${contest.slug}`)}>
-                        Enter Contest
-                      </Button>
                     </ListGroup.Item>
                   ))}
                 </ListGroup>
@@ -535,12 +539,14 @@ function ContestPage() {
                 <ListGroup className="mb-3">
                   {completed.map((contest) => (
                     <ListGroup.Item key={contest._id} className="contest-list-item">
-                      <div>
-                        <strong>{contest.name}</strong> - Ended at: {new Date(new Date(contest.startTime).getTime() + contest.duration * 60000).toLocaleString()}
+                      <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                        <div>
+                          <strong>{contest.name}</strong> - Ended at: {new Date(new Date(contest.startTime).getTime() + contest.duration * 60000).toLocaleString()}
+                        </div>
+                        <Button variant="dark" size="sm" className="small-btn" onClick={() => navigate(`/contest/${contest.slug}`)}>
+                          View Contest
+                        </Button>
                       </div>
-                      <Button variant="dark" size="sm" className="small-btn" onClick={() => navigate(`/contest/${contest.slug}`)}>
-                        View Contest
-                      </Button>
                     </ListGroup.Item>
                   ))}
                 </ListGroup>
