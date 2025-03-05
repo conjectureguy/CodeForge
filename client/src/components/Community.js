@@ -137,7 +137,7 @@ const Community = ({ currentUser }) => {
                  </Button>
 
                 </div>
-                <Button className="comments-btn" variant="outline-success" onClick={() => navigate(`/blog/${post._id}`)}>
+                <Button className="comments-btn" variant="outline-warning" onClick={() => navigate(`/blog/${post._id}`)}>
                   Comments
                 </Button>
               </div>
