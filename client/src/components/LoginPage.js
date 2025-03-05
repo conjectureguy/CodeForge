@@ -26,7 +26,7 @@ function LoginPage() {
             // Display the problem link as a clickable href.
             setMessage(
                 <>
-                    Challenge started! Please submit a compilation error for the following problem within 60 seconds:{' '}
+                    Challenge started! Please submit a compilation error for the following problem within 120 seconds:{' '}
                     <a href={res.data.problemLink} target="_blank" rel="noopener noreferrer">
                         {res.data.problemLink}
                     </a>
@@ -67,7 +67,7 @@ function LoginPage() {
                     <Form onSubmit={startLogin}>
                         {error && <Alert variant="danger">{error}</Alert>}
                         <Form.Group className="mb-3">
-                            <Form.Label className='text'>Enter your Codeforces username:</Form.Label>
+                            <Form.Label className='text'>Enter your Codeforces Handle:</Form.Label>
                             <Form.Control
                                 type="text"
                                 value={username}
