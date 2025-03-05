@@ -126,19 +126,20 @@ function ProblemsPage() {
             });
           }
         });
-        // Identify weak topics: only if total >=15 and ratio < 0.5.
+        // Identify weak topics: only if total >=15 and ratio < 0.6.
         const weakTopicsList = [];
         for (const tag in tagStats) {
-          if (tagStats[tag].total >= 15) {
+          if (tagStats[tag].total >= 5) {
             const accepted = tagStats[tag].accepted;
             const wrong = tagStats[tag].total - accepted;
             if (wrong === 0) continue;
             const ratio = accepted / wrong;
-            if (ratio < 0.5) {
+            if (ratio < 0.6) {
               weakTopicsList.push({ tag, accepted, wrong, ratio: ratio.toFixed(2) });
             }
           }
         }
+        weakTopicsList.sort((a, b) => parseFloat(a.ratio) - parseFloat(b.ratio));
         setWeakTopics(weakTopicsList);
       })
       .catch((err) => setRecError(err.message))
@@ -169,8 +170,8 @@ function ProblemsPage() {
         p.tags &&
         p.tags.includes(topic) &&
         p.rating &&
-        p.rating >= myRating + 200 &&
-        p.rating <= myRating + 300
+        p.rating >= myRating + 100 &&
+        p.rating <= myRating + 500
     );
     recs.sort((a, b) => a.rating - b.rating);
     setRecommendedProblems(recs.slice(0, 50));
@@ -298,7 +299,7 @@ function ProblemsPage() {
           {recError && <Alert variant="danger">{recError}</Alert>}
           <p className="mt-3">
             Recommendations are based on your weak topics (problem tags with a low
-            accepted-to-wrong ratio, ignoring tags with fewer than 15 solved problems).
+            accepted-to-wrong ratio, ignoring tags with fewer than 5 solved problems).
           </p>
           {weakTopics.length > 0 ? (
             <div style={{ overflowX: 'auto', whiteSpace: 'nowrap' }} className="mb-3">
