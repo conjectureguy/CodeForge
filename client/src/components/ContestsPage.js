@@ -33,8 +33,10 @@ function ContestsPage() {
   };
 
   return (
-    <div>
-      <h2>Contests</h2>
+    <div className="contests-page" style={{ padding: '20px' }}>
+      {/* Added top margin to create spacing between nav bar and heading */}
+      <h1 style={{ marginTop: '20px' }}>CodeForces Contests</h1>
+      
       <Row className="mb-3">
         <Col md={4}>
           <Form.Group controlId="phaseSelect">
@@ -52,6 +54,16 @@ function ContestsPage() {
           </Form.Group>
         </Col>
       </Row>
+      
+      {/* Gray gradient underline below filter dropdown */}
+      <div
+        className="filter-underline"
+        style={{
+          height: '4px',
+          background: 'linear-gradient(to right, #ccc, #888)',
+          margin: '0.5rem 0 1rem 0'
+        }}
+      ></div>
 
       {loading && (
         <div className="text-center my-3">
