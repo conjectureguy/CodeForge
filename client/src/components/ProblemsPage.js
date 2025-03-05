@@ -191,7 +191,7 @@ function ProblemsPage() {
       >
         {/* Latest Problems Tab */}
         <Tab eventKey="latest" title="Latest Problems">
-          {loading && <Spinner animation="border" variant="primary" />}
+          {loading && <Spinner animation="border" variant="dark" />}
           {error && <Alert variant="danger">{error}</Alert>}
           <Form className="mb-3">
             <Row className="align-items-end">
@@ -294,7 +294,7 @@ function ProblemsPage() {
 
         {/* Recommendations Tab */}
         <Tab eventKey="recommendations" title="Recommendations">
-          {recLoading && <Spinner animation="border" variant="primary" />}
+          {recLoading && <Spinner animation="border" variant="dark" />}
           {recError && <Alert variant="danger">{recError}</Alert>}
           <p className="mt-3">
             Recommendations are based on your weak topics (problem tags with a low

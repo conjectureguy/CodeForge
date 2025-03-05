@@ -314,7 +314,7 @@ function ContestPage() {
         {/* CREATE CONTEST TAB */}
         <Tab eventKey="create" title="Create Contest">
           {createError && <Alert variant="danger">{createError}</Alert>}
-          {createMsg && <Alert variant="success">{createMsg}</Alert>}
+          {createMsg && <Alert variant="dark">{createMsg}</Alert>}
           {!createdContest ? (
             <Form className="contest-form">
               <Form.Group className="mb-3">
@@ -432,7 +432,7 @@ function ContestPage() {
                   </ListGroup.Item>
                 ))}
               </ListGroup>
-              <Button className="full-btn" variant="success" onClick={saveChanges} disabled={loading}>
+              <Button className="full-btn" variant="dark" onClick={saveChanges} disabled={loading}>
                 Save Changes
               </Button>
             </>
@@ -441,7 +441,7 @@ function ContestPage() {
 
         <Tab eventKey="join" title="Join Contest" onClick={fetchMyTeams}>
           {joinError && <Alert variant="danger">{joinError}</Alert>}
-          {joinMsg && <Alert variant="success">{joinMsg}</Alert>}
+          {joinMsg && <Alert variant="dark">{joinMsg}</Alert>}
           <Form className="mb-3">
             <Form.Group className="mb-3">
               <Form.Label>Enter Contest ID or Link (Individual)</Form.Label>
@@ -459,7 +459,7 @@ function ContestPage() {
           <hr />
           <h4>Join as Team</h4>
           {joinTeamError && <Alert variant="danger">{joinTeamError}</Alert>}
-          {joinTeamMsg && <Alert variant="success">{joinTeamMsg}</Alert>}
+          {joinTeamMsg && <Alert variant="dark">{joinTeamMsg}</Alert>}
           <Form.Group className="mb-3">
             <Form.Label>Enter Contest ID (Team)</Form.Label>
             <Form.Control
