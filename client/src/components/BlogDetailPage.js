@@ -10,16 +10,17 @@ const socket = io('http://localhost:5000');
 // Component for individual reply item
 const ReplyItem = ({ reply, loggedInUser, voteReply, submitReply }) => {
   const [replyInput, setReplyInput] = useState('');
+  const [showReplyForm, setShowReplyForm] = useState(false);
   const replyUserVote = loggedInUser && reply.voted_by ? reply.voted_by.find(v => v.user === loggedInUser) : null;
 
   return (
     <Card className="blog-card reply-card">
-      <Card.Body>
-        <Card.Subtitle className="mb-2 text-muted">
-          {reply.author} - {new Date(reply.createdAt).toLocaleString()}
+      <Card.Body className="py-2 px-3">
+        <Card.Subtitle className="mb-1 text-muted small">
+          <strong>{reply.author}</strong> • {new Date(reply.createdAt).toLocaleString()}
         </Card.Subtitle>
-        <Card.Text>{reply.content}</Card.Text>
-        <div className="vote-container">
+        <Card.Text className="my-2">{reply.content}</Card.Text>
+        <div className="vote-container mb-1">
           <div className="vote-buttons">
             <Button
               className={`upvote ${replyUserVote && replyUserVote.vote === 1 ? "active" : ""}`}
@@ -39,31 +40,44 @@ const ReplyItem = ({ reply, loggedInUser, voteReply, submitReply }) => {
               ▼
             </Button>
           </div>
+          
+          <Button 
+            variant="link" 
+            className="p-0 text-dark ms-3"
+            onClick={() => setShowReplyForm(!showReplyForm)}
+          >
+            {showReplyForm ? 'Cancel' : 'Reply'}
+          </Button>
         </div>
         
-        <Form className="mt-3">
-          <Form.Group>
-            <Form.Control 
-              type="text" 
-              placeholder="Reply..." 
-              value={replyInput} 
-              onChange={(e) => setReplyInput(e.target.value)} 
-            />
-            <Button 
-              variant="dark" 
-              className="mt-2 w-100" 
-              onClick={() => { 
-                submitReply(reply._id, replyInput); 
-                setReplyInput(''); 
-              }}
-            >
-              Reply
-            </Button>
-          </Form.Group>
-        </Form>
+        {showReplyForm && (
+          <Form className="mt-2">
+            <Form.Group className="d-flex">
+              <Form.Control 
+                type="text" 
+                placeholder="Reply..." 
+                size="sm"
+                value={replyInput} 
+                onChange={(e) => setReplyInput(e.target.value)} 
+              />
+              <Button 
+                variant="dark" 
+                size="sm"
+                className="ms-2" 
+                onClick={() => { 
+                  submitReply(reply._id, replyInput); 
+                  setReplyInput(''); 
+                  setShowReplyForm(false);
+                }}
+              >
+                Send
+              </Button>
+            </Form.Group>
+          </Form>
+        )}
 
         {reply.replies && reply.replies.length > 0 && (
-          <div className="nested-reply mt-3">
+          <div className="nested-reply mt-2">
             {reply.replies.map(childReply => (
               <ReplyItem 
                 key={childReply._id} 
@@ -195,7 +209,7 @@ const BlogDetailPage = ({ currentUser }) => {
       </Card>
       
       <div className="community-header">
-        <h3>Replies</h3>
+        <h3>Comments</h3>
       </div>
 
       {error && <Alert variant="danger">{error}</Alert>}

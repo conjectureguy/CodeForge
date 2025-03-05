@@ -320,3 +320,42 @@ body {
   min-width: 30px;
   text-align: center;
 }
+
+.nested-reply {
+  margin-left: 12px;
+  border-left: 2px solid #e0e0e0;
+  padding-left: 8px;
+}
+
+.reply-card {
+  margin-bottom: 8px;
+}
+
+.reply-card .card-body {
+  padding: 0.75rem;
+}
+
+.vote-container {
+  display: flex;
+  align-items: center;
+}
+
+.vote-buttons {
+  display: flex;
+  align-items: center;
+}
+
+.upvote, .downvote {
+  padding: 0;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vote-count {
+  margin: 0 4px;
+  min-width: 20px;
+  text-align: center;
+}

@@ -53,20 +53,25 @@ function HomePage() {
         </Col>
         <Col md={4}>
           <div className="profile-search-box">
-            <h2 className="my-3">Search for a Profile</h2>
-            {error && <Alert variant="danger">{error}</Alert>}
-            <Form.Group className="mb-3">
-              <Form.Control
-                type="text"
-                placeholder="Enter Codeforces handle"
-                value={searchHandle}
-                onChange={(e) => setSearchHandle(e.target.value)}
-              />
-            </Form.Group>
-            <Button variant="primary" onClick={handleSearch}>Search</Button>
+            <Card className="mt-3 mb-4 blog-card">
+              <Card.Body>
+                <h2 className="mb-3">Search for a Profile</h2>
+                {error && <Alert variant="danger">{error}</Alert>}
+                <Form.Group className="mb-3">
+                  <Form.Control
+                    type="text"
+                    placeholder="Enter handle"
+                    value={searchHandle}
+                    onChange={(e) => setSearchHandle(e.target.value)}
+                    className="form-control"
+                  />
+                </Form.Group>
+                <Button variant="primary" onClick={handleSearch} className="w-100">Search</Button>
+              </Card.Body>
+            </Card>
           </div>
           {profile && (
-            <Card className="mt-4">
+            <Card className="mt-4 blog-card">
               <Card.Body>
                 <Card.Title>{profile.handle}</Card.Title>
                 <Card.Img
