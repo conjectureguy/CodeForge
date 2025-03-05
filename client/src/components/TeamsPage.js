@@ -1,7 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { Form, Button, Alert, Spinner, ListGroup } from 'react-bootstrap';
 import axios from 'axios';
+import './contestpage.css'; // Reusing the contestpage CSS for consistent styling
 
 function TeamsPage() {
   // Get the current user's CodeForces handle from localStorage
@@ -100,66 +100,87 @@ function TeamsPage() {
   const myTeams = teams.filter(team => currentUser && team.members.includes(currentUser));
 
   return (
-    <div>
-      <h2>Teams</h2>
+    <div className="contest-page">
+      <h2 className="page-heading">Teams</h2>
       {error && <Alert variant="danger">{error}</Alert>}
-      {message && <Alert variant="success">{message}</Alert>}
-      <Form>
-        <Form.Group className="mb-3">
-          <Form.Label>Team Name</Form.Label>
-          <Form.Control
-            type="text"
-            value={teamName}
-            onChange={(e) => setTeamName(e.target.value)}
-          />
-        </Form.Group>
-        <Form.Text className="text-muted">
-          Your CodeForces handle: {currentUser || 'Not logged in'}
-        </Form.Text>
-        <br/>
-        <Form.Label className="mt-3">Additional Team Members (Codeforces IDs)</Form.Label>
-        {members.map((member, index) => (
-          <Form.Group className="mb-3" key={index}>
+      {message && <Alert variant="dark">{message}</Alert>}
+      
+      <div className="mb-4">
+        <h4>Create a New Team</h4>
+        <Form className="contest-form">
+          <Form.Group className="mb-3">
+            <Form.Label>Team Name</Form.Label>
             <Form.Control
               type="text"
-              placeholder="Enter member Codeforces ID"
-              value={member}
-              onChange={(e) => handleMemberChange(index, e.target.value)}
+              value={teamName}
+              onChange={(e) => setTeamName(e.target.value)}
             />
-            {members.length > 1 && (
-              <Button variant="danger" size="sm" onClick={() => removeMemberField(index)} className="mt-1">
-                Remove
-              </Button>
-            )}
           </Form.Group>
-        ))}
-        {members.length < 2 && (
-          <Button variant="secondary" onClick={addMemberField}>
-            Add Member
+          
+          <Form.Text className="text-muted mb-3 d-block">
+            Your CodeForces handle: <strong>{currentUser || 'Not logged in'}</strong>
+          </Form.Text>
+          
+          <Form.Label className="mt-3">Additional Team Members (Codeforces IDs)</Form.Label>
+          {members.map((member, index) => (
+            <Form.Group className="mb-3" key={index}>
+              <div className="d-flex">
+                <Form.Control
+                  type="text"
+                  placeholder="Enter member Codeforces ID"
+                  value={member}
+                  onChange={(e) => handleMemberChange(index, e.target.value)}
+                  className="me-2"
+                />
+                {members.length > 1 && (
+                  <Button 
+                    variant="danger" 
+                    size="sm" 
+                    onClick={() => removeMemberField(index)}
+                    className="small-btn"
+                  >
+                    Remove
+                  </Button>
+                )}
+              </div>
+            </Form.Group>
+          ))}
+          
+          {members.length < 2 && (
+            <Button variant="dark" size="sm" onClick={addMemberField} className="mb-3">
+              Add Member
+            </Button>
+          )}
+          
+          <Button 
+            className="full-btn" 
+            variant="dark" 
+            onClick={createTeam} 
+            disabled={loading}
+          >
+            {loading ? <Spinner animation="border" size="sm" variant="light" /> : 'Create Team'}
           </Button>
-        )}
-        <div className="mt-3">
-          <Button variant="primary" onClick={createTeam} disabled={loading}>
-            {loading ? <Spinner animation="border" size="sm" /> : 'Create Team'}
-          </Button>
-        </div>
-      </Form>
+        </Form>
+      </div>
+      
       {currentUser && (
-        <>
-          <hr />
-          <h3>My Teams</h3>
+        <div className="mt-4">
+          <h4>My Teams</h4>
           {myTeams.length > 0 ? (
-            <ListGroup>
+            <ListGroup className="mb-3">
               {myTeams.map(team => (
-                <ListGroup.Item key={team._id}>
-                  <strong>{team.teamName}</strong> - Members: {team.members.join(', ')}
+                <ListGroup.Item key={team._id} className="contest-list-item">
+                  <div>
+                    <strong>{team.teamName}</strong>
+                    <div className="text-muted">Members: {team.members.join(', ')}</div>
+                  </div>
                 </ListGroup.Item>
               ))}
             </ListGroup>
           ) : (
-            <p>You are not a member of any team yet.</p>
+            <Alert variant="info">You are not a member of any team yet.</Alert>
           )}
-        </>
+        </div>
       )}
     </div>
   );
