@@ -93,7 +93,7 @@ function ProblemsPage() {
     }
     setRecLoading(true);
     setRecError('');
-    // First, fetch user info to get current rating.
+    // Fetch user info to get current rating.
     fetch(`https://codeforces.com/api/user.info?handles=${myHandle}`)
       .then((res) => res.json())
       .then((data) => {
@@ -106,7 +106,7 @@ function ProblemsPage() {
       })
       .catch((err) => setRecError(err.message));
 
-    // Next, fetch submissions to compute weak topics.
+    // Fetch submissions to compute weak topics.
     fetch(`https://codeforces.com/api/user.status?handle=${myHandle}&from=1&count=10000`)
       .then((res) => res.json())
       .then((data) => {
@@ -126,16 +126,15 @@ function ProblemsPage() {
             });
           }
         });
-        // Identify weak topics: only if total >=15, and accepted/wrong ratio (wrong = total - accepted) is low.
+        // Identify weak topics: only if total >=15 and ratio < 0.5.
         const weakTopicsList = [];
         for (const tag in tagStats) {
           if (tagStats[tag].total >= 15) {
             const accepted = tagStats[tag].accepted;
             const wrong = tagStats[tag].total - accepted;
-            // If wrong is 0, treat ratio as Infinity (we ignore these topics)
             if (wrong === 0) continue;
             const ratio = accepted / wrong;
-            if (ratio < 0.5) { // threshold; adjust as needed
+            if (ratio < 0.5) {
               weakTopicsList.push({ tag, accepted, wrong, ratio: ratio.toFixed(2) });
             }
           }
@@ -179,14 +178,13 @@ function ProblemsPage() {
   };
 
   return (
-    <div>
+    <div style={{ padding: '20px' }}>
       <h2>Problems</h2>
       <Tabs
         id="problems-tabs"
         activeKey={activeKey}
         onSelect={(k) => {
           setActiveKey(k);
-          // Reset pagination for Latest Problems when switching back
           if (k === 'latest') setCurrentPage(0);
         }}
         className="mb-3"
@@ -229,7 +227,11 @@ function ProblemsPage() {
                 </Form.Group>
               </Col>
               <Col md={3}>
-                <Button variant="primary" onClick={handleFilter}>
+                <Button
+                  style={{ width: '100%', fontWeight: 'bold' }}
+                  variant="dark"
+                  onClick={handleFilter}
+                >
                   Apply Filters
                 </Button>
               </Col>
@@ -269,16 +271,18 @@ function ProblemsPage() {
           <Row className="mt-3">
             <Col md={6}>
               <Button
-                variant="secondary"
+                style={{ width: '100%', fontWeight: 'bold' }}
+                variant="dark"
                 onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 0))}
                 disabled={currentPage === 0}
               >
                 Previous
               </Button>
             </Col>
-            <Col md={6} className="text-end">
+            <Col md={6}>
               <Button
-                variant="secondary"
+                style={{ width: '100%', fontWeight: 'bold' }}
+                variant="dark"
                 onClick={() => setCurrentPage((prev) => prev + 1)}
                 disabled={(currentPage + 1) * problemsPerPage >= problems.length}
               >
@@ -296,13 +300,16 @@ function ProblemsPage() {
             Recommendations are based on your weak topics (problem tags with a low
             accepted-to-wrong ratio, ignoring tags with fewer than 15 solved problems).
           </p>
-          {/* Display weak topics in a horizontally scrollable container */}
           {weakTopics.length > 0 ? (
             <div style={{ overflowX: 'auto', whiteSpace: 'nowrap' }} className="mb-3">
               <ListGroup horizontal>
                 {weakTopics.map((item) => (
                   <ListGroup.Item key={item.tag} className="px-3">
-                    <Button variant="outline-primary" onClick={() => fetchProblemsForTopic(item.tag)}>
+                    <Button
+                      style={{ fontWeight: 'bold' }}
+                      variant="dark"
+                      onClick={() => fetchProblemsForTopic(item.tag)}
+                    >
                       {item.tag} (acc: {item.accepted}, wrong: {item.wrong}, ratio: {item.ratio})
                     </Button>
                   </ListGroup.Item>
@@ -312,7 +319,6 @@ function ProblemsPage() {
           ) : (
             <p>No weak topics detected.</p>
           )}
-          {/* Display recommended problems if a topic is selected */}
           {selectedTopic && (
             <>
               <h4>Recommended Problems for "{selectedTopic}"</h4>
