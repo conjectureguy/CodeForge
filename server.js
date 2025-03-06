@@ -20,6 +20,14 @@ const app = express();
 app.use(express.json());
 app.use(cors());
 
+app.use(cors({
+  origin: [
+    'https://code-forge-one.vercel.app',
+    'http://localhost:3000'  // Keep this for local development
+  ],
+  credentials: true
+}));
+
 // Connect to MongoDB
 mongoose.connect(mongo_uri, {
   useNewUrlParser: true,
@@ -40,9 +48,15 @@ app.use('/api/teams', teamRoutes);
 // Create HTTP server and attach Socket.io
 const server = http.createServer(app);
 const io = socketio(server, {
-  cors: { origin: '*' }
+  cors: { 
+    origin: [
+      'https://code-forge-one.vercel.app',
+      'http://localhost:3000'
+    ],
+    methods: ["GET", "POST"],
+    credentials: true
+  }
 });
-
 io.on('connection', (socket) => {
   console.log('New client connected:', socket.id);
   socket.on('disconnect', () => console.log('Client disconnected:', socket.id));
