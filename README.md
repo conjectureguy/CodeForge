@@ -29,7 +29,6 @@ _CodeForge_ is a web application that enables competitive programmers to host an
 
 ## Hosted Links
 - **Deployed Website:** [https://yourdeployedsite.com](https://yourdeployedsite.com)  
-  *(Replace with your actual deployed URL)*
 
 ## Technologies Used
 - **Frontend:** React, React-Bootstrap
