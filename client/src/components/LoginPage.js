@@ -3,6 +3,7 @@ import { Form, Button, Alert, Spinner } from 'react-bootstrap';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './LoginPage.css';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 function LoginPage() {
     const [username, setUsername] = useState('');
@@ -21,7 +22,7 @@ function LoginPage() {
         setError('');
         setMessage('');
         try {
-            const res = await axios.post('http://localhost:5000/api/auth/login', { username });
+            const res = await axios.post(`${API_URL}/api/auth/login`, { username });
             setChallenge(res.data);
             // Display the problem link as a clickable href.
             setMessage(
@@ -44,7 +45,7 @@ function LoginPage() {
         if (!challenge) return;
         setCheckLoading(true);
         try {
-            const res = await axios.get(`http://localhost:5000/api/auth/challenge-check?challengeId=${challenge.challengeId}`);
+            const res = await axios.get(`${API_URL}/api/auth/challenge-check?challengeId=${challenge.challengeId}`);
             if (res.data.success) {
                 // Save username and token to localStorage.
                 localStorage.setItem('myHandle', username);

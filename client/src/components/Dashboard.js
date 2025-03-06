@@ -8,6 +8,7 @@ function Dashboard() {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
   const handleCompare = async () => {
     // Validate both input fields are non-empty
@@ -23,7 +24,7 @@ function Dashboard() {
     const handles = `${yourHandle.trim()};${friendHandle.trim()}`;
     console.log(handles);
     try {
-      const response = await fetch(`http://localhost:5000/api/users?handles=${handles}`);
+      const response = await fetch(`${API_URL}/api/users?handles=${handles}`);
       const data = await response.json();
       if (data.status === 'OK' && data.result.length > 0) {
         if (data.result.length !== 2) {

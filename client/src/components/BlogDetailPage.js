@@ -4,8 +4,9 @@ import { Card, Button, Form, Alert, Container } from 'react-bootstrap';
 import { useParams } from 'react-router-dom';
 import io from 'socket.io-client';
 import './community.css';
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+const socket = io(`${API_URL}`);
 
-const socket = io('http://localhost:5000');
 
 // Component for individual reply item
 const ReplyItem = ({ reply, loggedInUser, voteReply, submitReply }) => {
@@ -104,7 +105,7 @@ const BlogDetailPage = ({ currentUser }) => {
 
   const fetchPost = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/community/posts/${postId}`);
+      const res = await fetch(`${API_URL}/api/community/posts/${postId}`);
       if (!res.ok) throw new Error('Failed to fetch post');
       const data = await res.json();
       setPost(data);
@@ -131,7 +132,7 @@ const BlogDetailPage = ({ currentUser }) => {
       return;
     }
     try {
-      await fetch(`http://localhost:5000/api/community/posts/${postId}/reply`, {
+      await fetch(`${API_URL}/api/community/posts/${postId}/reply`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ content: text, author: loggedInUser, parentReplyId })
@@ -146,7 +147,7 @@ const BlogDetailPage = ({ currentUser }) => {
 
   const votePost = async (type) => {
     if (!loggedInUser) return alert("Please log in to vote");
-    await fetch(`http://localhost:5000/api/community/posts/${postId}/vote`, {
+    await fetch(`${API_URL}/api/community/posts/${postId}/vote`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type, user: loggedInUser })
@@ -156,7 +157,7 @@ const BlogDetailPage = ({ currentUser }) => {
 
   const voteReply = async (replyId, type) => {
     if (!loggedInUser) return alert("Please log in to vote");
-    await fetch(`http://localhost:5000/api/community/posts/${postId}/reply/${replyId}/vote`, {
+    await fetch(`${API_URL}/api/community/posts/${postId}/reply/${replyId}/vote`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ type, user: loggedInUser })

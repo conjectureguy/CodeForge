@@ -59,11 +59,13 @@ function ContestPage() {
 
   const navigate = useNavigate();
   const admin = localStorage.getItem('myHandle'); // current user
+  const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
+
 
   // ----- Fetch Admin's Teams -----
   const fetchMyTeams = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/teams');
+      const res = await axios.get(`${API_URL}/api/teams`);
       if (res.data.success) {
         const myTeamsList = res.data.teams.filter((team) =>
           team.members.includes(admin)
@@ -84,7 +86,7 @@ function ContestPage() {
     setLoading(true);
     setCreateError('');
     try {
-      const res = await axios.post('http://localhost:5000/api/contests/create', {
+      const res = await axios.post(`${API_URL}/api/contests/create`, {
         name: contestName,
         startTime,
         duration,
@@ -111,7 +113,7 @@ function ContestPage() {
     setLoading(true);
     try {
       const res = await axios.post(
-        `http://localhost:5000/api/contests/${createdContest.id}/add-problem`,
+        `${API_URL}/api/contests/${createdContest.id}/add-problem`,
         { problemLink }
       );
       if (res.data.success) {
@@ -133,7 +135,7 @@ function ContestPage() {
     setLoading(true);
     try {
       const res = await axios.post(
-        `http://localhost:5000/api/contests/${createdContest.id}/add-random`,
+        `${API_URL}/api/contests/${createdContest.id}/add-random`,
         { rating: parseInt(randomRating) }
       );
       if (res.data.success) {
@@ -155,11 +157,11 @@ function ContestPage() {
     try {
       if (joinAsTeamAdmin && selectedTeam) {
         await axios.post(
-          `http://localhost:5000/api/contests/${createdContest.id}/join-team`,
+          `${API_URL}/api/contests/${createdContest.id}/join-team`,
           { teamName: selectedTeam }
         );
       } else {
-        await axios.post(`http://localhost:5000/api/contests/${createdContest.id}/join`, {
+        await axios.post(`${API_URL}/api/contests/${createdContest.id}/join`, {
           username: admin,
         });
       }
@@ -188,7 +190,7 @@ function ContestPage() {
     setJoinError('');
     try {
       const res = await axios.post(
-        `http://localhost:5000/api/contests/${joinId}/join`,
+        `${API_URL}/api/contests/${joinId}/join`,
         { username: admin }
       );
       if (res.data.success) {
@@ -224,7 +226,7 @@ function ContestPage() {
         payload.members = filteredMembers;
       }
       const res = await axios.post(
-        `http://localhost:5000/api/contests/${joinTeamId}/join-team`,
+        `${API_URL}/api/contests/${joinTeamId}/join-team`,
         payload
       );
       if (res.data.success) {
@@ -242,7 +244,7 @@ function ContestPage() {
     setContestsLoading(true);
     setContestsError('');
     try {
-      const res = await axios.get('http://localhost:5000/api/contests');
+      const res = await axios.get(`${API_URL}/api/contests`);
       if (res.data.success) {
         const myContests = res.data.contests.filter((contest) =>
           contest.participants.some((p) => {

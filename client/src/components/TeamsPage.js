@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Form, Button, Alert, Spinner, ListGroup } from 'react-bootstrap';
 import axios from 'axios';
 import './contestpage.css'; // Reusing the contestpage CSS for consistent styling
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 function TeamsPage() {
   // Get the current user's CodeForces handle from localStorage
@@ -67,7 +68,7 @@ function TeamsPage() {
 
     setLoading(true);
     try {
-      const res = await axios.post('http://localhost:5000/api/teams/create', { teamName, members: teamMembers });
+      const res = await axios.post(`${API_URL}/api/teams/create`, { teamName, members: teamMembers });
       if (res.data.success) {
         setMessage('Team created successfully.');
         setTeamName('');
@@ -83,7 +84,7 @@ function TeamsPage() {
   // Fetch all teams from the backend
   const fetchTeams = async () => {
     try {
-      const res = await axios.get('http://localhost:5000/api/teams');
+      const res = await axios.get(`${API_URL}/api/teams`);
       if (res.data.success) {
         setTeams(res.data.teams);
       }

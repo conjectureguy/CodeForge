@@ -4,6 +4,7 @@ import { Card, Button, Form, Alert, Container } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import io from 'socket.io-client';
 import './community.css'; // Adjust the path as needed
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000';
 
 const socket = io('http://localhost:5000');
 
@@ -15,7 +16,7 @@ const Community = ({ currentUser }) => {
 
   const fetchPosts = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/community/posts');
+      const res = await fetch(`${API_URL}/api/community/posts`);
       const data = await res.json();
       setPosts(data);
     } catch (err) {
@@ -58,7 +59,7 @@ const Community = ({ currentUser }) => {
     }
 
     try {
-      const res = await fetch('http://localhost:5000/api/community/posts', {
+      const res = await fetch(`${API_URL}/api/community/posts`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ ...newPost, author: currentUser })
@@ -142,7 +143,7 @@ const Community = ({ currentUser }) => {
                     variant='outline-dark'
                     onClick={() => {
                       if (!currentUser) return alert("Please log in to vote");
-                      fetch(`http://localhost:5000/api/community/posts/${post._id}/vote`, {
+                      fetch(`${API_URL}/api/community/posts/${post._id}/vote`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ type: 'up', user: currentUser })
@@ -158,7 +159,7 @@ const Community = ({ currentUser }) => {
                     variant='outline-dark'
                     onClick={() => {
                       if (!currentUser) return alert("Please log in to vote");
-                      fetch(`http://localhost:5000/api/community/posts/${post._id}/vote`, {
+                      fetch(`${API_URL}/api/community/posts/${post._id}/vote`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({ type: 'down', user: currentUser })

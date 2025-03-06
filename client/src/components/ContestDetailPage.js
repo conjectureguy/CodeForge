@@ -13,10 +13,12 @@ function ContestDetailPage() {
   const [problemDetails, setProblemDetails] = useState({});
   const [showCopiedToast, setShowCopiedToast] = useState(false);
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000'
+
   const fetchContest = async () => {
     setLoading(true);
     try {
-      const res = await axios.get(`http://localhost:5000/api/contests/slug/${contestSlug}`);
+      const res = await axios.get(`${API_URL}/api/contests/slug/${contestSlug}`);
       if (res.data.success) {
         setContest(res.data.contest);
         fetchProblemDetails(res.data.contest.problems);
