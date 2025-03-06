@@ -28,7 +28,7 @@ _CodeForge_ is a web application that enables competitive programmers to host an
   Receive personalized problem recommendations based on weak topics identified from your past performance.
 
 ## Hosted Links
-- **Deployed Website:** [https://yourdeployedsite.com](https://yourdeployedsite.com)  
+- **Deployed Website:** [https://code-forge-one.vercel.app/](https://code-forge-one.vercel.app/)  
 
 - **Demo Video:**  
   [![Watch the Demo Video](https://img.youtube.com/vi/ZTGF20PSrrc/maxresdefault.jpg)](https://youtu.be/ZTGF20PSrrc)
